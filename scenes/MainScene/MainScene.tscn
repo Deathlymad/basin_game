@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://dxwhq4pw7hlfh"]
+[gd_scene load_steps=6 format=3 uid="uid://dxwhq4pw7hlfh"]
 
-[ext_resource type="Script" uid="uid://ty5oyx2coyh2" path="res://scenes/MainScene/debug_mouse.gd" id="1_1ka3p"]
+[ext_resource type="Script" path="res://scenes/MainScene/debug_mouse.gd" id="1_1ka3p"]
 [ext_resource type="Script" uid="uid://2aundyss0wxm" path="res://scenes/MainScene/basin.gd" id="2_1ka3p"]
+[ext_resource type="Script" uid="uid://veklv46j4u2p" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ka3p"]
 albedo_color = Color(1, 0, 0, 1)
@@ -24,9 +25,9 @@ script = ExtResource("2_1ka3p")
 radius = null
 
 [node name="Node3D" type="Node3D" parent="."]
-script = ExtResource("1_1ka3p")
+script = ExtResource("3_fupjk")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 0.918384, 0.39569, 0, -0.39569, 0.918384, 0, 5.43029, 8.38736)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
