@@ -15,6 +15,7 @@ enum HexDirection {
 }
 
 class HexCoordinate:
+	static var ORIGIN = HexCoordinate.new(0, 0, 0)
 	var pos : Vector3
 	
 	func _init(x : float, y : float, z : float):

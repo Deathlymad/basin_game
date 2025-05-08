@@ -1,6 +1,7 @@
 extends Node3D
 
 func _input(evt : InputEvent):
+	return
 	if evt is InputEventMouseMotion:
 		var ray_start = $Camera3D.project_ray_origin(evt.position)
 		var ray_end = ray_start + $Camera3D.project_ray_normal(evt.position) * 1000

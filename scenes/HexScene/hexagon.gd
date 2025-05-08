@@ -1,16 +1,18 @@
 extends Node3D
 
-@export var hex_pos_proxy : Vector3
 @export var height : float
 
 var hex_position : HexHelper.HexCoordinate
+
+
+
 func _ready():
-	hex_position = HexHelper.HexCoordinate.new(hex_pos_proxy.x, hex_pos_proxy.y, hex_pos_proxy.z)
-	$CanvasLayer/Label.text = hex_position.to_string()
-	#
 	var reconstructed = HexHelper.HexCoordinate.from_carthesian(hex_position.to_carthesian())
 	#reconstructed.round_coord()
-	print(hex_position.to_string(), reconstructed.to_string())
+	#print(hex_position.to_string(), reconstructed.to_string())
+	
+	$CanvasLayer/Label.text = hex_position.to_string()
 	
 	#pos update
 	global_position = hex_position.to_carthesian() + Vector3.UP * height
+	
