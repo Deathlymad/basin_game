@@ -2,20 +2,20 @@ extends MeshInstance3D
 
 
 func _ready():
-	var res = _update_mesh(get_parent().height)
+	var res = _update_mesh()
 	apply_update_to_mesh(res[0], res[1])
 
-func _update_mesh(height : float = 0, coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):
+func _update_mesh(coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):
 	var pts : Array[Vector3] = []
 	
 	pts.append(Vector3.ZERO) #Center
 	
-	pts.append(Vector3(  HexHelper.INNER_RADIUS, height,  0.5 * HexHelper.OUTER_RADIUS))
-	pts.append(Vector3(  HexHelper.INNER_RADIUS, height, -0.5 * HexHelper.OUTER_RADIUS))
-	pts.append(Vector3(                       0, height,       -HexHelper.OUTER_RADIUS))
-	pts.append(Vector3( -HexHelper.INNER_RADIUS, height, -0.5 * HexHelper.OUTER_RADIUS))
-	pts.append(Vector3( -HexHelper.INNER_RADIUS, height,  0.5 * HexHelper.OUTER_RADIUS))
-	pts.append(Vector3(                       0, height,        HexHelper.OUTER_RADIUS))
+	pts.append(Vector3(  HexHelper.INNER_RADIUS, 0,  0.5 * HexHelper.OUTER_RADIUS))
+	pts.append(Vector3(  HexHelper.INNER_RADIUS, 0, -0.5 * HexHelper.OUTER_RADIUS))
+	pts.append(Vector3(                       0, 0,       -HexHelper.OUTER_RADIUS))
+	pts.append(Vector3( -HexHelper.INNER_RADIUS, 0, -0.5 * HexHelper.OUTER_RADIUS))
+	pts.append(Vector3( -HexHelper.INNER_RADIUS, 0,  0.5 * HexHelper.OUTER_RADIUS))
+	pts.append(Vector3(                       0, 0,        HexHelper.OUTER_RADIUS))
 	
 	var idx : Array[int] = []
 	
@@ -30,7 +30,6 @@ func _update_mesh(height : float = 0, coord_offset : Vector3 = Vector3.ZERO, idx
 	return [pts, idx]
 
 func apply_update_to_mesh(vertices, indices):
-	
 	var packed_coords : PackedVector3Array = PackedVector3Array()
 	packed_coords.append_array(vertices)
 	var packed_idx : PackedInt32Array = PackedInt32Array()
@@ -43,4 +42,8 @@ func apply_update_to_mesh(vertices, indices):
 	
 	# Create the Mesh.
 	mesh.clear_surfaces()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINE_STRIP, arrays)
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	
+	for c in get_children():
+		remove_child(c)
+	create_multiple_convex_collisions()
