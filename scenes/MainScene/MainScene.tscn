@@ -1,0 +1,31 @@
+[gd_scene load_steps=2 format=3 uid="uid://dxwhq4pw7hlfh"]
+
+[ext_resource type="PackedScene" uid="uid://bc4do07yh1qyr" path="res://scenes/HexScene/HexScene.tscn" id="1_nftkl"]
+
+[node name="MainScene" type="Node3D"]
+
+[node name="Node3D" parent="." instance=ExtResource("1_nftkl")]
+
+[node name="Node3D2" parent="." instance=ExtResource("1_nftkl")]
+hex_pos_proxy = Vector3(1, 0, 0)
+
+[node name="Node3D3" parent="." instance=ExtResource("1_nftkl")]
+hex_pos_proxy = Vector3(0, 1, 0)
+
+[node name="Node3D4" parent="." instance=ExtResource("1_nftkl")]
+hex_pos_proxy = Vector3(1, 1, 0)
+
+[node name="Node3D5" parent="." instance=ExtResource("1_nftkl")]
+hex_pos_proxy = Vector3(0, 0, 1)
+
+[node name="Node3D6" parent="." instance=ExtResource("1_nftkl")]
+hex_pos_proxy = Vector3(1, 0, 1)
+
+[node name="Node3D7" parent="." instance=ExtResource("1_nftkl")]
+hex_pos_proxy = Vector3(0, 1, 1)
+
+[node name="Node3D8" parent="." instance=ExtResource("1_nftkl")]
+hex_pos_proxy = Vector3(1, 1, 1)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.918384, 0.39569, 0, -0.39569, 0.918384, 0, 5.43029, 8.38736)
