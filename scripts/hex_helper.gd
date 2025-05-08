@@ -20,6 +20,8 @@ static func get_next_hex_direction(dir : HexDirection):
 	return (dir + 1) % HexDirection.DIRECTION_MAX
 static func get_prev_hex_direction(dir : HexDirection):
 	return (HexDirection.DIRECTION_MAX + dir - 1) % HexDirection.DIRECTION_MAX
+static func get_opposite_hex_direction(dir : HexDirection):
+	return (dir + 4) % HexDirection.DIRECTION_MAX
 
 class HexCoordinate:
 	var pos : Vector3

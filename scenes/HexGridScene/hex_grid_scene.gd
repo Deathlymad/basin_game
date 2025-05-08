@@ -11,13 +11,10 @@ func _ready():
 	start_pos = start_pos.step_in_dir(direction)
 	var root = start_pos.duplicate()
 	
-	print("==============================", direction, " ", next_dir, "==============================")
-	
 	for i in range(size):
 		var hex = Hexagon.new()
 		hex.hex_position = start_pos.duplicate().minus(root)
 		hex.grid_radius = size
-		print(hex.hex_position)
 		hexagons.append(hex)
 		var step_pos = start_pos.duplicate()
 		start_pos.step_in_dir(direction)
@@ -26,11 +23,9 @@ func _ready():
 			hex = Hexagon.new()
 			hex.hex_position = step_pos.duplicate().minus(root)
 			hex.grid_radius = size
-			print(hex.hex_position)
 			hexagons.append(hex)
 			step_pos.step_in_dir(next_dir)
 	
-	print("============================================================")
 	generate_mesh()
 	global_position = root.to_carthesian()
 
@@ -41,8 +36,25 @@ func add_hexagons_to_geometry(arrays):
 		arrays[Mesh.ARRAY_INDEX].append_array(res[1])
 	
 
-func add_connectors_to_grid():
-	pass
+func add_connectors_to_grid(arrays):
+	var i = 0
+	var last_in_major_dir = 0
+	var next_dir = HexHelper.get_next_hex_direction(direction)
+	for h in range(size):
+		
+		#pass
+		
+		i += 7
+		for j in range(size - h - 2):
+			
+			i += 7
+			arrays[Mesh.ARRAY_INDEX].append(i + direction)
+			arrays[Mesh.ARRAY_INDEX].append(i + next_dir)
+			arrays[Mesh.ARRAY_INDEX].append(i + 7 + HexHelper.get_opposite_hex_direction(direction))
+			arrays[Mesh.ARRAY_INDEX].append(i + next_dir)
+			arrays[Mesh.ARRAY_INDEX].append(i + 7 + HexHelper.get_opposite_hex_direction(direction))
+			arrays[Mesh.ARRAY_INDEX].append(i + 7 + HexHelper.get_opposite_hex_direction(next_dir))
+			
 
 func generate_mesh():
 	var arrays = []
@@ -51,7 +63,7 @@ func generate_mesh():
 	arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
 	
 	add_hexagons_to_geometry(arrays)
-	
+	add_connectors_to_grid(arrays)
 	# Create the Mesh.
 	$MeshInstance3D.mesh = ArrayMesh.new()
 	$MeshInstance3D.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
