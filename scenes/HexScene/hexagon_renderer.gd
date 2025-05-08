@@ -8,7 +8,7 @@ func _ready():
 func _update_mesh(height : float = 0, coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):
 	var pts : Array[Vector3] = []
 	
-	pts.append(Vector3.ZERO) #Center
+	pts.append(Vector3(0, height, 0)) #Center
 	
 	pts.append(Vector3(  HexHelper.INNER_RADIUS, height,  0.5 * HexHelper.OUTER_RADIUS))
 	pts.append(Vector3(  HexHelper.INNER_RADIUS, height, -0.5 * HexHelper.OUTER_RADIUS))
