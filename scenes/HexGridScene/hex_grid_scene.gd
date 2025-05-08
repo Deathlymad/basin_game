@@ -16,6 +16,7 @@ func _ready():
 	for i in range(size):
 		var hex = Hexagon.new()
 		hex.hex_position = start_pos.duplicate().minus(root)
+		hex.grid_radius = size
 		print(hex.hex_position)
 		hexagons.append(hex)
 		var step_pos = start_pos.duplicate()
@@ -24,6 +25,7 @@ func _ready():
 		for j in range(size - i - 1):
 			hex = Hexagon.new()
 			hex.hex_position = step_pos.duplicate().minus(root)
+			hex.grid_radius = size
 			print(hex.hex_position)
 			hexagons.append(hex)
 			step_pos.step_in_dir(next_dir)

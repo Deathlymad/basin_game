@@ -20,28 +20,28 @@ script = ExtResource("1_1ka3p")
 [node name="DebugDot" type="MeshInstance3D" parent="."]
 mesh = SubResource("PointMesh_1ka3p")
 
-[node name="Basin" type="Node3D" parent="."]
+[node name="Node3D2" type="Node3D" parent="."]
 
-[node name="HexGridScene2" parent="Basin" instance=ExtResource("3_y65c2")]
+[node name="Basin#HexGridScene2" parent="Node3D2" instance=ExtResource("3_y65c2")]
 size = 6
 
-[node name="HexGridScene3" parent="Basin" instance=ExtResource("3_y65c2")]
+[node name="Basin#HexGridScene3" parent="Node3D2" instance=ExtResource("3_y65c2")]
 size = 6
 direction = 1
 
-[node name="HexGridScene4" parent="Basin" instance=ExtResource("3_y65c2")]
+[node name="Basin#HexGridScene4" parent="Node3D2" instance=ExtResource("3_y65c2")]
 size = 6
 direction = 2
 
-[node name="HexGridScene5" parent="Basin" instance=ExtResource("3_y65c2")]
+[node name="Basin#HexGridScene5" parent="Node3D2" instance=ExtResource("3_y65c2")]
 size = 6
 direction = 3
 
-[node name="HexGridScene6" parent="Basin" instance=ExtResource("3_y65c2")]
+[node name="Basin#HexGridScene6" parent="Node3D2" instance=ExtResource("3_y65c2")]
 size = 6
 direction = 4
 
-[node name="HexGridScene" parent="Basin" instance=ExtResource("3_y65c2")]
+[node name="Basin#HexGridScene" parent="Node3D2" instance=ExtResource("3_y65c2")]
 size = 6
 direction = 5
 
@@ -56,3 +56,6 @@ transform = Transform3D(1, 0, 0, 0, 0.918384, 0.39569, 0, -0.39569, 0.918384, 0,
 [node name="Control" type="Label" parent="CanvasLayer"]
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.0945601, 0.995519, 0, -0.995519, 0.0945601, 0, 0.996139, -2.1407)
