@@ -117,24 +117,279 @@ func generate_triangles(arrays):
 			arrays[Mesh.ARRAY_INDEX].append(hexagons.find(b) * 7 + 1)
 			arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 5)
 	
-
+#THIS IS A FUCKING UGLY PIECE OF CODE BUT AT THIS POINT I CAN'T DEAL WITH DIRECTIONS ANYMORE
+#ALSO APPARENTLY NORTH IS DIRECTED TO CAMERA??? IDEK ANYMORE
+func to_xz(v : Vector3) -> Vector2:
+	return Vector2(v.x, v.z)
 func generate_chunk_border_in_dir(arrays, direction:HexHelper.HexDirection):
+	var origin = HexHelper.HexCoordinate.new(0, 0, 0)
 	var start_pos = HexHelper.HexCoordinate.new(0, 0, 0)
 	start_pos = start_pos.step_in_dir(direction)
-	var dir = HexHelper.get_opposite_hex_direction(HexHelper.get_next_hex_direction(direction))
+	var dir = HexHelper.get_next_hex_direction(direction)
 	
-	var pos = start_pos.step_in_dir(dir)
+	var uv_offset = Vector2(global_position.x, global_position.z)
+	
+	var pos = start_pos.duplicate()
+	var off = 0
+	var last_off = 0
 	for j in range(size):
-		if direction == HexHelper.HexDirection.NE:
+		if dir == HexHelper.HexDirection.E:
+			arrays[Mesh.ARRAY_INDEX].append(5 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(6 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(5 + off * 7)
 			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
 			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
-			arrays[Mesh.ARRAY_INDEX].append(0)
 			
-			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0, -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
 			
-			arrays[Mesh.ARRAY_TEX_UV].append(Vector2())
-			arrays[Mesh.ARRAY_TEX_UV].append(Vector2())
+			if j > 0:
+				arrays[Mesh.ARRAY_INDEX].append(6 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(1 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				arrays[Mesh.ARRAY_INDEX].append(1 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				
+				
+				arrays[Mesh.ARRAY_INDEX].append(1 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(5 + off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				
+				arrays[Mesh.ARRAY_INDEX].append(6 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				if j == 1:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 1) #smaller array, could be resolved with smarter buffer layout
+				else:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 2)
+				
+			last_off = off
+			off += size - j
+			
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3( 0, pos.distance_to(origin), -HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			if j > 0:
+				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			
+		elif dir == HexHelper.HexDirection.SE:
+			arrays[Mesh.ARRAY_INDEX].append(6 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(1 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(6 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+			
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_INDEX].append(1 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(2 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				arrays[Mesh.ARRAY_INDEX].append(2 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				
+				
+				arrays[Mesh.ARRAY_INDEX].append(2 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(6 + off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				
+				arrays[Mesh.ARRAY_INDEX].append(1 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				if j == 1:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 1) #smaller array, could be resolved with smarter buffer layout
+				else:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 2)
+				
+			last_off = off
+			off += size - j
+			
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3(  -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3( 0, pos.distance_to(origin),       -HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3(-HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS,pos.distance_to(origin),  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			if j > 0:
+				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			
+		elif dir == HexHelper.HexDirection.SW:
+			arrays[Mesh.ARRAY_INDEX].append(1 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(2 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(1 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+			
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_INDEX].append(2 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(3 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				arrays[Mesh.ARRAY_INDEX].append(3 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				
+				
+				arrays[Mesh.ARRAY_INDEX].append(3 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(1 + off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				
+				arrays[Mesh.ARRAY_INDEX].append(2 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				if j == 1:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 1) #smaller array, could be resolved with smarter buffer layout
+				else:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 2)
+				
+			last_off = off
+			off += size - j
+			
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3(-HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin),  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3(-HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3(0, pos.distance_to(origin),        HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			if j > 0:
+				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			
+		elif dir == HexHelper.HexDirection.W:
+			arrays[Mesh.ARRAY_INDEX].append(2 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(3 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(2 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+			
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_INDEX].append(3 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(4 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				arrays[Mesh.ARRAY_INDEX].append(4 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				
+				
+				arrays[Mesh.ARRAY_INDEX].append(4 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(2 + off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				
+				arrays[Mesh.ARRAY_INDEX].append(3 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				if j == 1:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 1) #smaller array, could be resolved with smarter buffer layout
+				else:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 2)
+				
+			last_off = off
+			off += size - j
+			
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3( 0, pos.distance_to(origin), HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), 0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), 0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			if j > 0:
+				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			
+		elif dir == HexHelper.HexDirection.NE:
+			arrays[Mesh.ARRAY_INDEX].append(4 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(5 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(4 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_INDEX].append(5 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(6 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				arrays[Mesh.ARRAY_INDEX].append(6 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				
+				
+				arrays[Mesh.ARRAY_INDEX].append(6 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(4 + off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				
+				arrays[Mesh.ARRAY_INDEX].append(5 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				if j == 1:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 1) #smaller array, could be resolved with smarter buffer layout
+				else:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 2)
+				
+			last_off = off
+			off += size - j
+			
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3(HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3(HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), 0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3(0, pos.distance_to(origin), -HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			if j > 0:
+				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			
+		elif dir == HexHelper.HexDirection.NW:
+			arrays[Mesh.ARRAY_INDEX].append(3 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(4 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(3 + off * 7)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_INDEX].append(4 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(5 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				arrays[Mesh.ARRAY_INDEX].append(5 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				
+				
+				arrays[Mesh.ARRAY_INDEX].append(5 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(3 + off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+				
+				arrays[Mesh.ARRAY_INDEX].append(4 + last_off * 7)
+				arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 2)
+				if j == 1:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 1) #smaller array, could be resolved with smarter buffer layout
+				else:
+					arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) - 2)
+				
+			last_off = off
+			off += size - j
+			
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3(  HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), 0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3( 0, pos.distance_to(origin),       HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			if j > 0:
+				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3(HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			if j > 0:
+				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			
+		pos.step_in_dir(dir)
 
 func generate_mesh():
 	_calculate_global_uv_ratio()
