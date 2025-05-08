@@ -37,6 +37,7 @@ func _ready():
 	for i in range(size):
 		var hex = Hexagon.new()
 		hex.hex_position = start_pos.duplicate()
+		hex.height = hex.hex_position.distance_to(HexHelper.HexCoordinate.new(0,0,0))
 		if(last_major_hex != null):
 			hex.add_neighbor(last_major_hex) 
 			hex.add_neighbor(hexagons[len(hexagons) - (size - i - 1) - 1])
@@ -49,6 +50,7 @@ func _ready():
 		for j in range(size - i - 1):
 			hex = Hexagon.new()
 			hex.hex_position = step_pos.duplicate()
+			hex.height = hex.hex_position.distance_to(HexHelper.HexCoordinate.new(0,0,0))
 			hex.add_neighbor(last_minor_hex)
 			if (size - (i - 1)) <= len(hexagons):
 				hex.add_neighbor(hexagons[len(hexagons) - (size - (i - 1))])
@@ -118,13 +120,14 @@ func generate_triangles(arrays):
 
 func generate_chunk_border_in_dir(arrays, direction:HexHelper.HexDirection):
 	var start_pos = HexHelper.HexCoordinate.new(0, 0, 0)
-	var dir = HexHelper.get_opposite_hex_direction(direction)
+	start_pos = start_pos.step_in_dir(direction)
+	var dir = HexHelper.get_opposite_hex_direction(HexHelper.get_next_hex_direction(direction))
 	
 	var pos = start_pos.step_in_dir(dir)
 	for j in range(size):
 		if direction == HexHelper.HexDirection.NE:
-			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
 			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
 			arrays[Mesh.ARRAY_INDEX].append(0)
 			
 			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))

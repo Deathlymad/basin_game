@@ -24,14 +24,14 @@ func get_neighbor_in_dir(dir : HexHelper.HexDirection):
 func _update_mesh(uv_ratio : Vector2, uv_offset : Vector2, coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):
 	var pts : Array[Vector3] = []
 	
-	pts.append(coord_offset) #Center
+	pts.append(coord_offset + Vector3.UP * height) #Center
 	
-	pts.append(coord_offset + Vector3(  HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-	pts.append(coord_offset + Vector3(  HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0, -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-	pts.append(coord_offset + Vector3(                       0, 0,       -HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-	pts.append(coord_offset + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0, -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-	pts.append(coord_offset + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-	pts.append(coord_offset + Vector3(                       0, 0,        HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+	pts.append(coord_offset + Vector3(  HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, height,  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+	pts.append(coord_offset + Vector3(  HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, height, -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+	pts.append(coord_offset + Vector3(                       0, height,       -HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+	pts.append(coord_offset + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, height, -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+	pts.append(coord_offset + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, height,  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+	pts.append(coord_offset + Vector3(                       0, height,        HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
 	
 	var idx : Array[int] = []
 	
