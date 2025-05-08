@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://dxwhq4pw7hlfh"]
+[gd_scene load_steps=15 format=3 uid="uid://dxwhq4pw7hlfh"]
 
 [ext_resource type="Script" uid="uid://ty5oyx2coyh2" path="res://scenes/MainScene/debug_mouse.gd" id="1_1ka3p"]
 [ext_resource type="Script" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
 [ext_resource type="PackedScene" uid="uid://bohqdnkljiicp" path="res://scenes/HexGridScene/HexGridScene.tscn" id="3_y65c2"]
+[ext_resource type="Shader" uid="uid://ci8ko54eis2pm" path="res://scenes/MainScene/water_shader.gdshader" id="4_y65c2"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ka3p"]
 albedo_color = Color(1, 0, 0, 1)
@@ -14,6 +15,45 @@ point_size = 16.0
 [sub_resource type="PointMesh" id="PointMesh_1ka3p"]
 material = SubResource("StandardMaterial3D_1ka3p")
 
+[sub_resource type="PlaneMesh" id="PlaneMesh_3cvap"]
+
+[sub_resource type="Gradient" id="Gradient_y65c2"]
+offsets = PackedFloat32Array(0.172131, 1)
+colors = PackedColorArray(0, 1, 1, 1, 1, 1, 1, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_3cvap"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_spuhd"]
+in_3d_space = true
+seamless = true
+as_normal_map = true
+color_ramp = SubResource("Gradient_y65c2")
+noise = SubResource("FastNoiseLite_3cvap")
+
+[sub_resource type="Gradient" id="Gradient_spuhd"]
+colors = PackedColorArray(0, 0, 1, 1, 1, 1, 1, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_y65c2"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_spiu4"]
+in_3d_space = true
+seamless = true
+as_normal_map = true
+color_ramp = SubResource("Gradient_spuhd")
+noise = SubResource("FastNoiseLite_y65c2")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_73lv8"]
+render_priority = 0
+shader = ExtResource("4_y65c2")
+shader_parameter/uAlbedo = Color(0.41, 0.724667, 1, 1)
+shader_parameter/uTexureNormal = SubResource("NoiseTexture2D_spuhd")
+shader_parameter/uTexureNormal2 = SubResource("NoiseTexture2D_spiu4")
+shader_parameter/uNormalMix = 0.4
+shader_parameter/uWaveDirection = Vector2(1, 0)
+shader_parameter/uWaveDirection2 = Vector2(0, 1)
+shader_parameter/uTimeScale = 0.066
+shader_parameter/uWaveScale = 2.0
+
 [node name="MainScene" type="Node3D"]
 script = ExtResource("1_1ka3p")
 
@@ -23,26 +63,26 @@ mesh = SubResource("PointMesh_1ka3p")
 [node name="Node3D2" type="Node3D" parent="."]
 
 [node name="NorthEastChunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 6
+size = 12
 
 [node name="EastChunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 6
+size = 12
 direction = 1
 
 [node name="SouthEastChunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 6
+size = 12
 direction = 2
 
 [node name="SouthWestCHunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 6
+size = 12
 direction = 3
 
 [node name="WestChunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 6
+size = 12
 direction = 4
 
 [node name="NoethWestChunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 6
+size = 12
 direction = 5
 
 [node name="Node3D" type="Node3D" parent="."]
@@ -59,3 +99,16 @@ offset_bottom = 40.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.0945601, 0.995519, 0, -0.995519, 0.0945601, 0, 0.996139, -2.1407)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("PlaneMesh_3cvap")
+surface_material_override/0 = SubResource("ShaderMaterial_73lv8")
+
+[node name="Node3D3" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.4311, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Node3D3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -233.886, 83.1432, 0)
+light_color = Color(1, 0.847059, 0.639216, 1)
+sky_mode = 2

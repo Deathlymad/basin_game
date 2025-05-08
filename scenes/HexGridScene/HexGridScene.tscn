@@ -13,4 +13,5 @@ script = ExtResource("1_l445s")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 material_override = SubResource("StandardMaterial3D_8yreh")
+cast_shadow = 2
 mesh = SubResource("ArrayMesh_l445s")
