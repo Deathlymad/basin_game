@@ -5,38 +5,7 @@ class_name Hexagon
 var height : float
 var hex_position : HexHelper.HexCoordinate
 
-var uv_offset = Vector2.ZERO
-var grid_radius
-var grid_range
-
-func _calculate_uv():
-	
-	var MAX_ARRAY : Array[Vector3]
-	
-	MAX_ARRAY.append(HexHelper.HexCoordinate.new(0,0,grid_radius).to_carthesian())
-	MAX_ARRAY.append(HexHelper.HexCoordinate.new(grid_radius,0,0).to_carthesian())
-	MAX_ARRAY.append(HexHelper.HexCoordinate.new(0,0,-grid_radius).to_carthesian())
-	MAX_ARRAY.append(HexHelper.HexCoordinate.new(-grid_radius,0,0).to_carthesian())
-	MAX_ARRAY.append(HexHelper.HexCoordinate.new(0,grid_radius,0).to_carthesian())	
-	MAX_ARRAY.append(HexHelper.HexCoordinate.new(0,-grid_radius,0).to_carthesian())
-	
-	var min = Vector2.ZERO
-	var max = Vector2.ZERO
-	
-	for pt in MAX_ARRAY:
-		min.x = min(pt.x, min.x)
-		min.y = min(pt.z, min.y)
-		max.x = max(pt.x, max.y)
-		max.y = max(pt.z, max.y)
-	
-	grid_range = max - min
-	
-	
-	
-	print(uv_offset)
-	
-func _update_mesh(coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):
-	_calculate_uv()
+func _update_mesh(uv_ratio : Vector2, uv_offset : Vector2, coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):
 	var pts : Array[Vector3] = []
 	
 	pts.append(coord_offset) #Center
@@ -59,11 +28,12 @@ func _update_mesh(coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):
 		idx.append(idx_offset + i)
 	
 	var uvs : Array[Vector2] = []
-		
 	
-	for point in pts:		
-		var local_norm_uv = Vector2(point.x / grid_range.x, point.z / grid_range.y)
-		var new_uv = local_norm_uv + (grid_range/2)
+	for point in pts:
+		var pt = Vector2(point.x, point.z)
+		var local_norm_uv = (pt + uv_offset) / uv_ratio
+		print(local_norm_uv)
+		var new_uv = local_norm_uv + (uv_ratio/2)
 		
 		uvs.append(new_uv)
 		

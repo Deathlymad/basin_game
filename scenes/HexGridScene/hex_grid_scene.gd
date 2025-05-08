@@ -4,6 +4,28 @@ var hexagons : Array[Hexagon]
 @export var size : int
 @export var direction : HexHelper.HexDirection
 
+var uv_ratio : Vector2
+
+func _calculate_global_uv_ratio():
+	
+	var extremes : Array[Vector3]
+	
+	extremes.append(HexHelper.HexCoordinate.new(0,0,size).to_carthesian())
+	extremes.append(HexHelper.HexCoordinate.new(size,0,0).to_carthesian())
+	extremes.append(HexHelper.HexCoordinate.new(0,0,-size).to_carthesian())
+	extremes.append(HexHelper.HexCoordinate.new(-size,0,0).to_carthesian())
+	
+	var min = Vector2.ZERO
+	var max = Vector2.ZERO
+	
+	for pt in extremes:
+		min.x = min(pt.x, min.x)
+		min.y = min(pt.z, min.y)
+		max.x = max(pt.x, max.y)
+		max.y = max(pt.z, max.y)
+	
+	uv_ratio = max - min
+	
 func _ready():
 	hexagons = []
 	var start_pos = HexHelper.HexCoordinate.new(0, 0, 0)
@@ -13,25 +35,22 @@ func _ready():
 	
 	for i in range(size):
 		var hex = Hexagon.new()
-		hex.hex_position = start_pos.duplicate().minus(root)
-		hex.grid_radius = size
+		hex.hex_position = start_pos.duplicate()
 		hexagons.append(hex)
 		var step_pos = start_pos.duplicate()
 		start_pos.step_in_dir(direction)
 		step_pos.step_in_dir(next_dir)
 		for j in range(size - i - 1):
 			hex = Hexagon.new()
-			hex.hex_position = step_pos.duplicate().minus(root)
-			hex.grid_radius = size
+			hex.hex_position = step_pos.duplicate()
 			hexagons.append(hex)
 			step_pos.step_in_dir(next_dir)
 	
 	generate_mesh()
-	global_position = root.to_carthesian()
 
 func add_hexagons_to_geometry(arrays):
 	for hex in hexagons:
-		var res = hex._update_mesh(to_local(hex.hex_position.to_carthesian()), arrays[Mesh.ARRAY_VERTEX].size())
+		var res = hex._update_mesh(uv_ratio, Vector2(global_position.x, global_position.z), hex.hex_position.to_carthesian(), arrays[Mesh.ARRAY_VERTEX].size())
 		arrays[Mesh.ARRAY_VERTEX].append_array(res[0])
 		arrays[Mesh.ARRAY_INDEX].append_array(res[1])
 		arrays[Mesh.ARRAY_TEX_UV].append_array(res[2])
@@ -58,6 +77,7 @@ func add_connectors_to_grid(arrays):
 			
 
 func generate_mesh():
+	_calculate_global_uv_ratio()
 	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
