@@ -4,6 +4,22 @@ class_name Hexagon
 
 var height : float
 var hex_position : HexHelper.HexCoordinate
+var neighbors : Array[Hexagon]
+
+func add_neighbor(hex : Hexagon, propagate:bool = true):
+	if not hex in neighbors:
+		if propagate:
+			hex.add_neighbor(self, false)
+		neighbors.append(hex)
+func remove_neighbor(hex : Hexagon, propagate:bool = true):
+	if hex in neighbors:
+		if propagate:
+			hex.remove_neighbor(self, false)
+		neighbors.erase(hex)
+func get_neighbor_in_dir(dir : HexHelper.HexDirection):
+	for hex in neighbors:
+		if hex_position.duplicate().minus(hex.hex_position).get_direction() == dir:
+			return hex
 
 func _update_mesh(uv_ratio : Vector2, uv_offset : Vector2, coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):
 	var pts : Array[Vector3] = []
@@ -32,7 +48,6 @@ func _update_mesh(uv_ratio : Vector2, uv_offset : Vector2, coord_offset : Vector
 	for point in pts:
 		var pt = Vector2(point.x, point.z)
 		var local_norm_uv = (pt + uv_offset) / uv_ratio
-		print(local_norm_uv)
 		var new_uv = local_norm_uv + (uv_ratio/2)
 		
 		uvs.append(new_uv)

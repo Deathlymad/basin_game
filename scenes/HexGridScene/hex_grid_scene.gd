@@ -33,16 +33,27 @@ func _ready():
 	start_pos = start_pos.step_in_dir(direction)
 	var root = start_pos.duplicate()
 	
+	var last_major_hex = null
 	for i in range(size):
 		var hex = Hexagon.new()
 		hex.hex_position = start_pos.duplicate()
+		if(last_major_hex != null):
+			hex.add_neighbor(last_major_hex) 
+			hex.add_neighbor(hexagons[len(hexagons) - (size - i - 1) - 1])
+		last_major_hex = hex
 		hexagons.append(hex)
 		var step_pos = start_pos.duplicate()
 		start_pos.step_in_dir(direction)
 		step_pos.step_in_dir(next_dir)
+		var last_minor_hex = hex
 		for j in range(size - i - 1):
 			hex = Hexagon.new()
 			hex.hex_position = step_pos.duplicate()
+			hex.add_neighbor(last_minor_hex)
+			if (size - (i - 1)) <= len(hexagons):
+				hex.add_neighbor(hexagons[len(hexagons) - (size - (i - 1))])
+				hex.add_neighbor(hexagons[len(hexagons) - (size - (i - 1)) + 1])
+			last_minor_hex = hex
 			hexagons.append(hex)
 			step_pos.step_in_dir(next_dir)
 	
@@ -55,26 +66,72 @@ func add_hexagons_to_geometry(arrays):
 		arrays[Mesh.ARRAY_INDEX].append_array(res[1])
 		arrays[Mesh.ARRAY_TEX_UV].append_array(res[2])
 	
-
 func add_connectors_to_grid(arrays):
-	var i = 0
-	var last_in_major_dir = 0
-	var next_dir = HexHelper.get_next_hex_direction(direction)
-	for h in range(size):
+	for h in hexagons:
+		for n in [HexHelper.HexDirection.NE, HexHelper.HexDirection.E, HexHelper.HexDirection.SE]:
+			var o = h.get_neighbor_in_dir(n)
+			if o != null and o in hexagons:
+				#I can probably inline this, but i am lazy and don't understand my own helper functions anymore
+				if n == HexHelper.HexDirection.NE:
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 3)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 4)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(o) * 7 + 1)
+					
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 4)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(o) * 7 + 6)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(o) * 7 + 1)
+				elif n == HexHelper.HexDirection.E:
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 4)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 5)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(o) * 7 + 1)
+					
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(o) * 7 + 2)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 4)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(o) * 7 + 1)
+				elif n == HexHelper.HexDirection.SE:
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 5)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 6)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(o) * 7 + 2)
+					
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 5)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(o) * 7 + 2)
+					arrays[Mesh.ARRAY_INDEX].append(hexagons.find(o) * 7 + 3)
+	
+func generate_triangles(arrays):
+	for h in hexagons:
+		var a = h.get_neighbor_in_dir(HexHelper.HexDirection.NE)
+		var b = h.get_neighbor_in_dir(HexHelper.HexDirection.E)
+		var c = h.get_neighbor_in_dir(HexHelper.HexDirection.SE)
 		
-		#pass
+		if b == null or not b in hexagons:
+			continue
 		
-		i += 7
-		for j in range(size - h - 2):
+		if a != null and a in hexagons:
+			arrays[Mesh.ARRAY_INDEX].append(hexagons.find(b) * 7 + 2)
+			arrays[Mesh.ARRAY_INDEX].append(hexagons.find(a) * 7 + 6)
+			arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 4)
+		if c != null and c in hexagons:
+			arrays[Mesh.ARRAY_INDEX].append(hexagons.find(c) * 7 + 3)
+			arrays[Mesh.ARRAY_INDEX].append(hexagons.find(b) * 7 + 1)
+			arrays[Mesh.ARRAY_INDEX].append(hexagons.find(h) * 7 + 5)
+	
+
+func generate_chunk_border_in_dir(arrays, direction:HexHelper.HexDirection):
+	var start_pos = HexHelper.HexCoordinate.new(0, 0, 0)
+	var dir = HexHelper.get_opposite_hex_direction(direction)
+	
+	var pos = start_pos.step_in_dir(dir)
+	for j in range(size):
+		if direction == HexHelper.HexDirection.NE:
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]))
+			arrays[Mesh.ARRAY_INDEX].append(len(arrays[Mesh.ARRAY_VERTEX]) + 1)
+			arrays[Mesh.ARRAY_INDEX].append(0)
 			
-			i += 7
-			arrays[Mesh.ARRAY_INDEX].append(i + direction)
-			arrays[Mesh.ARRAY_INDEX].append(i + next_dir)
-			arrays[Mesh.ARRAY_INDEX].append(i + 7 + HexHelper.get_opposite_hex_direction(direction))
-			arrays[Mesh.ARRAY_INDEX].append(i + next_dir)
-			arrays[Mesh.ARRAY_INDEX].append(i + 7 + HexHelper.get_opposite_hex_direction(direction))
-			arrays[Mesh.ARRAY_INDEX].append(i + 7 + HexHelper.get_opposite_hex_direction(next_dir))
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+			arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0, -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
 			
+			arrays[Mesh.ARRAY_TEX_UV].append(Vector2())
+			arrays[Mesh.ARRAY_TEX_UV].append(Vector2())
 
 func generate_mesh():
 	_calculate_global_uv_ratio()
@@ -86,6 +143,8 @@ func generate_mesh():
 	
 	add_hexagons_to_geometry(arrays)
 	add_connectors_to_grid(arrays)
+	generate_triangles(arrays)
+	generate_chunk_border_in_dir(arrays, HexHelper.get_prev_hex_direction(direction))
 	# Create the Mesh.
 	$MeshInstance3D.mesh = ArrayMesh.new()
 	$MeshInstance3D.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)

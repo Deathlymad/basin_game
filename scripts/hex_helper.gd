@@ -33,6 +33,25 @@ class HexCoordinate:
 	func duplicate():
 		return HexCoordinate.new(pos.x, pos.y, pos.z)
 	
+	func get_direction():
+		round_coord()
+		if abs(pos.x + pos.z) > 1:
+			print("ERROR: attempted to compute direction on non-normalized coordinate")
+		else:
+			if pos.z == 1 and pos.x == 0:
+				return HexDirection.NE
+			elif pos.x == 1 and pos.z == 0:
+				return HexDirection.E
+			elif pos.x == 1 and pos.z == -1:
+				return HexDirection.SE
+			elif pos.z == -1 and pos.z == 0:
+				return HexDirection.SW
+			elif pos.x == -1 and pos.z == 0:
+				return HexDirection.W
+			elif pos.x == -1 and pos.z == 1:
+				return HexDirection.NW
+			
+	
 	func step_in_dir(dir : HexDirection):
 		if dir == HexDirection.NE:
 			pos.z += 1
