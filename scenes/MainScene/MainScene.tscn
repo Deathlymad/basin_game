@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://dxwhq4pw7hlfh"]
 
 [ext_resource type="Script" uid="uid://ty5oyx2coyh2" path="res://scenes/MainScene/debug_mouse.gd" id="1_1ka3p"]
-[ext_resource type="Script" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
+[ext_resource type="Script" uid="uid://veklv46j4u2p" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
 [ext_resource type="PackedScene" uid="uid://bohqdnkljiicp" path="res://scenes/HexGridScene/HexGridScene.tscn" id="3_y65c2"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ka3p"]
