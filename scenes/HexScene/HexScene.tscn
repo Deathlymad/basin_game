@@ -1,9 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://bc4do07yh1qyr"]
+[gd_scene load_steps=3 format=3 uid="uid://bc4do07yh1qyr"]
 
 [ext_resource type="Script" uid="uid://b45a1peeg7pvi" path="res://scenes/HexScene/hexagon.gd" id="1_2c856"]
-[ext_resource type="Script" uid="uid://mwuvurrf0e1q" path="res://scenes/HexScene/hexagon_renderer.gd" id="2_h4lnt"]
-
-[sub_resource type="ArrayMesh" id="ArrayMesh_j0u8r"]
 
 [sub_resource type="ViewportTexture" id="ViewportTexture_2c856"]
 viewport_path = NodePath("CanvasLayer")
@@ -25,10 +22,6 @@ TEST
 TEST"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("ArrayMesh_j0u8r")
-script = ExtResource("2_h4lnt")
 
 [node name="Sprite3D" type="Sprite3D" parent="."]
 billboard = 1

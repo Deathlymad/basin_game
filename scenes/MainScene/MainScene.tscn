@@ -34,3 +34,6 @@ transform = Transform3D(1, 0, 0, 0, 0.918384, 0.39569, 0, -0.39569, 0.918384, 0,
 [node name="Control" type="Label" parent="CanvasLayer"]
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.0945601, 0.995519, 0, -0.995519, 0.0945601, 0, 0.996139, -2.1407)
