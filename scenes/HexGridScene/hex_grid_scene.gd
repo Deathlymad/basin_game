@@ -34,6 +34,7 @@ func add_hexagons_to_geometry(arrays):
 		var res = hex._update_mesh(to_local(hex.hex_position.to_carthesian()), arrays[Mesh.ARRAY_VERTEX].size())
 		arrays[Mesh.ARRAY_VERTEX].append_array(res[0])
 		arrays[Mesh.ARRAY_INDEX].append_array(res[1])
+		arrays[Mesh.ARRAY_TEX_UV].append_array(res[2])
 	
 
 func add_connectors_to_grid(arrays):
@@ -61,6 +62,7 @@ func generate_mesh():
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
 	arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
+	arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
 	
 	add_hexagons_to_geometry(arrays)
 	add_connectors_to_grid(arrays)
