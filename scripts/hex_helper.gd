@@ -2,25 +2,56 @@ extends Node
 
 class_name HexHelper
 
-static var OUTER_RADIUS : float = 1;
+static var SOLID_RADIUS : float = 0.75
+static var OUTER_RADIUS : float = 4;
 static var INNER_RADIUS : float = OUTER_RADIUS * 0.866025404;
 
 enum HexDirection {
-	NE,
-	E,
-	SE,
-	SW,
-	W,
-	NW
+	NE = 0,
+	E = 1,
+	SE = 2,
+	SW = 3,
+	W = 4,
+	NW = 5,
+	DIRECTION_MAX = 6
 }
+#clockwise
+static func get_next_hex_direction(dir : HexDirection):
+	return (dir + 1) % HexDirection.DIRECTION_MAX
+static func get_prev_hex_direction(dir : HexDirection):
+	return (HexDirection.DIRECTION_MAX + dir - 1) % HexDirection.DIRECTION_MAX
 
 class HexCoordinate:
-	static var ORIGIN = HexCoordinate.new(0, 0, 0)
 	var pos : Vector3
 	
-	func _init(x : float, y : float, z : float):
+	func _init(x : float, _y : float, z : float):
 		pos.x = x
 		pos.z = z
+	
+	func duplicate():
+		return HexCoordinate.new(pos.x, pos.y, pos.z)
+	
+	func step_in_dir(dir : HexDirection):
+		if dir == HexDirection.NE:
+			pos.z += 1
+		elif dir == HexDirection.E:
+			pos.x += 1
+		elif dir == HexDirection.SE:
+			pos.x += 1
+			pos.z -= 1
+		elif dir == HexDirection.SW:
+			pos.z -= 1
+		elif dir == HexDirection.W:
+			pos.x -= 1
+		elif dir == HexDirection.NW:
+			pos.x -= 1
+			pos.z += 1
+		return self
+	
+	func minus(other : HexCoordinate):
+		pos.x -= other.pos.x
+		pos.z -= other.pos.z
+		return self
 	
 	func to_carthesian() -> Vector3:
 		var x = (sqrt(3) * pos.x + sqrt(3)/2 * pos.z) * HexHelper.OUTER_RADIUS;

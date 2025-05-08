@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://dxwhq4pw7hlfh"]
 
-[ext_resource type="Script" path="res://scenes/MainScene/debug_mouse.gd" id="1_1ka3p"]
-[ext_resource type="Script" uid="uid://2aundyss0wxm" path="res://scenes/MainScene/basin.gd" id="2_1ka3p"]
-[ext_resource type="Script" uid="uid://veklv46j4u2p" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
+[ext_resource type="Script" uid="uid://ty5oyx2coyh2" path="res://scenes/MainScene/debug_mouse.gd" id="1_1ka3p"]
+[ext_resource type="Script" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
+[ext_resource type="PackedScene" uid="uid://bohqdnkljiicp" path="res://scenes/HexGridScene/HexGridScene.tscn" id="3_y65c2"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ka3p"]
 albedo_color = Color(1, 0, 0, 1)
@@ -21,8 +21,29 @@ script = ExtResource("1_1ka3p")
 mesh = SubResource("PointMesh_1ka3p")
 
 [node name="Basin" type="Node3D" parent="."]
-script = ExtResource("2_1ka3p")
-radius = null
+
+[node name="HexGridScene2" parent="Basin" instance=ExtResource("3_y65c2")]
+size = 6
+
+[node name="HexGridScene3" parent="Basin" instance=ExtResource("3_y65c2")]
+size = 6
+direction = 1
+
+[node name="HexGridScene4" parent="Basin" instance=ExtResource("3_y65c2")]
+size = 6
+direction = 2
+
+[node name="HexGridScene5" parent="Basin" instance=ExtResource("3_y65c2")]
+size = 6
+direction = 3
+
+[node name="HexGridScene6" parent="Basin" instance=ExtResource("3_y65c2")]
+size = 6
+direction = 4
+
+[node name="HexGridScene" parent="Basin" instance=ExtResource("3_y65c2")]
+size = 6
+direction = 5
 
 [node name="Node3D" type="Node3D" parent="."]
 script = ExtResource("3_fupjk")
