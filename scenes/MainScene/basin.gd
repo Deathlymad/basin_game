@@ -13,4 +13,3 @@ func _ready():
 			hex_instance.hex_position = HexHelper.HexCoordinate.new(x,0,z)
 			hex_instance.height = hex_instance.hex_position.distance_to(base_instance)
 			add_child(hex_instance)
-				

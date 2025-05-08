@@ -22,7 +22,6 @@ mesh = SubResource("PointMesh_1ka3p")
 
 [node name="Basin" type="Node3D" parent="."]
 script = ExtResource("2_1ka3p")
-radius = null
 
 [node name="Node3D" type="Node3D" parent="."]
 script = ExtResource("3_fupjk")
