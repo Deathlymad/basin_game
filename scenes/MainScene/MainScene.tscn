@@ -58,6 +58,14 @@ shader_parameter/uWaveDirection2 = Vector2(0, 1)
 shader_parameter/uTimeScale = 0.066
 shader_parameter/uWaveScale = 2.0
 
+[sub_resource type="Environment" id="Environment_y65c2"]
+background_mode = 1
+background_color = Color(0.20082, 0.520271, 0.600977, 1)
+background_energy_multiplier = 1.21
+ambient_light_source = 2
+ambient_light_color = Color(0.884557, 0.910596, 0.905712, 1)
+reflected_light_source = 2
+
 [node name="MainScene" type="Node3D"]
 script = ExtResource("1_1ka3p")
 
@@ -93,6 +101,7 @@ script = ExtResource("3_fupjk")
 
 [node name="Camera3D" type="Camera3D" parent="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 0.918384, 0.39569, 0, -0.39569, 0.918384, 0, 5.43029, 8.38736)
+fov = 35.1
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -100,22 +109,15 @@ transform = Transform3D(1, 0, 0, 0, 0.918384, 0.39569, 0, -0.39569, 0.918384, 0,
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.0945601, 0.995519, 0, -0.995519, 0.0945601, 0, 0.996139, -2.1407)
-
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
 visible = false
 mesh = SubResource("PlaneMesh_3cvap")
 surface_material_override/0 = SubResource("ShaderMaterial_73lv8")
 
-[node name="Node3D3" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.4311, 0)
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Node3D3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -233.886, 83.1432, 0)
-light_color = Color(1, 0.847059, 0.639216, 1)
-sky_mode = 2
 
 [node name="AqueductContainer" type="Node3D" parent="."]
 script = ExtResource("5_3cvap")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_y65c2")

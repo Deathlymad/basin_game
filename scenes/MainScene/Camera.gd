@@ -1,29 +1,32 @@
 extends Node3D
 
-
-
 const look_sensitivity = 0.002
 var move_speed = 1
-var zoom_speed = 3
-var zoom_level = 1
 
+#zoom functionality
+var zoom_speed = 1
+var zoom_level = 10
+const max_zoom = 20
+const min_zoom = 0.5
 var to_camera
+
 var allowRot := false
 var allowPan := false
 
 var hasInput := false
 
 var input := Vector3.ZERO
+var defaultZoom : Vector3
 
 
 func _ready():	
 	$Camera3D.look_at(global_transform.origin, Vector3.UP)	
+	defaultZoom = $Camera3D.position 
+	for i in zoom_level:
+		$Camera3D.position = defaultZoom * zoom_level
 	
 
-func _unhandled_input(event: InputEvent) -> void:
-	
-	
-	
+func _unhandled_input(event: InputEvent) -> void:		
 	if event is InputEventMouseMotion and allowRot:
 		rotation.y -= event.relative.x * look_sensitivity
 		rotation.x -= event.relative.y * look_sensitivity
@@ -32,28 +35,21 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and allowPan:		
 		input.z = -event.relative.y
 		input.x = -event.relative.x
-		
 			
-		input = input.normalized()
 		hasInput = true
-		
 	
-	
-	
-	
-
 	if Input.is_action_pressed("ZoomOut"):
 		
-		if zoom_level < 3:
+		if zoom_level < max_zoom:
 			zoom_level *= 1.05
-			$Camera3D.position *= 1.05
+			$Camera3D.position =  defaultZoom * zoom_level
 	
 	if Input.is_action_pressed("ZoomIn"):
 		
-		if zoom_level > 0.5:
+		if zoom_level > min_zoom:
 			zoom_level *= 0.95
-			$Camera3D.position *= 0.95
-
+			$Camera3D.position = defaultZoom * zoom_level
+	
 	if Input.is_action_just_pressed("SpeedUp"):
 		move_speed = 4;
 	if Input.is_action_just_released("SpeedUp"):
@@ -67,7 +63,7 @@ func _process(delta):
 		
 	if Input.is_action_pressed("Middle_Click"):
 		allowPan = true
-		move_speed = 20 * zoom_level;
+		move_speed = zoom_speed * zoom_level;
 	if Input.is_action_just_released("Middle_Click"):
 		allowPan = false
 		move_speed = 1;

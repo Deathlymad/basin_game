@@ -65,7 +65,6 @@ func update_aqueduct_structure(target : HexHelper.HexCoordinate):
 		temp_aqueducts.append(p)
 		add_child(p)
 	
-
 func place():
 	for t in temp_aqueducts:
 		t.make_real()
