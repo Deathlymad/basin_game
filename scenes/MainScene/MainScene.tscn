@@ -69,7 +69,7 @@ sky = SubResource("Sky_spuhd")
 ambient_light_source = 2
 ambient_light_color = Color(0.884557, 0.910596, 0.905712, 1)
 ambient_light_sky_contribution = 0.15
-ambient_light_energy = 0.6
+ambient_light_energy = 0.38
 reflected_light_source = 2
 
 [node name="MainScene" type="Node3D"]
@@ -148,12 +148,14 @@ script = ExtResource("7_spiu4")
 
 [node name="Node3D2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.06209, 0)
+visible = false
 script = ExtResource("7_spiu4")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="Node3D2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.5586, 14.6013, -0.0531769)
 light_energy = 5.439
 light_size = 2.255
+shadow_enabled = true
 omni_range = 21.68
 omni_attenuation = 0.408
 
@@ -161,6 +163,7 @@ omni_attenuation = 0.408
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.0354, 14.6013, -0.0531769)
 light_energy = 5.439
 light_size = 2.255
+shadow_enabled = true
 omni_range = 21.68
 omni_attenuation = 0.408
 
@@ -168,6 +171,7 @@ omni_attenuation = 0.408
 transform = Transform3D(-0.0131768, 0, -0.999913, 0, 1, 0, 0.999913, 0, -0.0131768, 2.55345, 14.6013, 15.7425)
 light_energy = 5.439
 light_size = 2.255
+shadow_enabled = true
 omni_range = 21.68
 omni_attenuation = 0.408
 
@@ -175,8 +179,13 @@ omni_attenuation = 0.408
 transform = Transform3D(-0.0131768, 0, -0.999913, 0, 1, 0, 0.999913, 0, -0.0131768, 2.96976, 14.6013, -15.8488)
 light_energy = 5.439
 light_size = 2.255
+shadow_enabled = true
 omni_range = 21.68
 omni_attenuation = 0.408
+
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.490265, 0.871573, 0, -0.871573, -0.490265, 0, 0, 0)
+sky_mode = 2
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_y65c2")

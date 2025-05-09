@@ -68,15 +68,17 @@ func add_aqueduct_in_for_height(height, in_dir, other_obj, out_dir):
 	update_aqueduct_model()
 
 func update_aqueduct_model():
-	
 	for i in range(len(nodes)):
 		if ((nodes[i].in_bits | nodes[i].out_bits) & 63) == 0:
 			continue
+		
+		print((nodes[i].in_bits | nodes[i].out_bits) & 63)
+		
 		var data_obj
-		if not (nodes[i].in_bits | nodes[i].out_bits) in AqueductConstants.auqeduct_for_connection_bitset.keys():
+		if not ((nodes[i].in_bits | nodes[i].out_bits) & 63) in AqueductConstants.auqeduct_for_connection_bitset.keys():
 			data_obj = AqueductConstants.auqeduct_for_connection_bitset[1]
 		else:
-			data_obj = AqueductConstants.auqeduct_for_connection_bitset[nodes[i].in_bits | nodes[i].out_bits]
+			data_obj = AqueductConstants.auqeduct_for_connection_bitset[(nodes[i].in_bits | nodes[i].out_bits) & 63]
 		nodes[i].aque_model.mesh = data_obj["obj"]
 		nodes[i].aque_model.rotation_degrees.y = data_obj["rot"]
 
