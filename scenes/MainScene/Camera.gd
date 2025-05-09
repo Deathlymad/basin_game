@@ -4,7 +4,7 @@ const look_sensitivity = 0.002
 var move_speed = 1
 
 #zoom functionality
-var zoom_speed = 10
+var zoom_speed = 1
 var zoom_level = 10
 const max_zoom = 20
 const min_zoom = 0.5
@@ -36,7 +36,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		input.z = -event.relative.y
 		input.x = -event.relative.x
 			
-		input = input.normalized()
 		hasInput = true
 	
 	if Input.is_action_pressed("ZoomOut"):

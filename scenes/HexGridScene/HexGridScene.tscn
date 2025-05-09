@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bohqdnkljiicp"]
 
 [ext_resource type="Script" uid="uid://d0rye4snk6dxf" path="res://scenes/HexGridScene/hex_grid_scene.gd" id="1_l445s"]
-[ext_resource type="Texture2D" uid="uid://c5dlmersqofqi" path="res://assets/textures/checkermap.png" id="2_raw18"]
+[ext_resource type="Texture2D" uid="uid://0rsqjrwqgl7j" path="res://assets/textures/dirt.jpg" id="2_raw18"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8yreh"]
 albedo_texture = ExtResource("2_raw18")
