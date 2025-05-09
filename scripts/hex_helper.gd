@@ -23,6 +23,8 @@ static func get_prev_hex_direction(dir : HexDirection):
 static func get_opposite_hex_direction(dir : HexDirection):
 	return (dir + 4) % HexDirection.DIRECTION_MAX
 
+static func to_xz(v : Vector3) -> Vector2:
+	return Vector2(v.x, v.z)
 class HexCoordinate:
 	var pos : Vector3
 	
@@ -94,6 +96,9 @@ class HexCoordinate:
 			r = -q-s
 		pos.x = q
 		pos.z = r
+	
+	func matches(other : HexCoordinate):
+		return pos == other.pos
 	
 	static func from_carthesian(coord : Vector3) -> HexCoordinate:
 		var x = coord.x / HexHelper.OUTER_RADIUS
