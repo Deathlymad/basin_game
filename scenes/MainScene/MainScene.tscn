@@ -1,12 +1,12 @@
 [gd_scene load_steps=21 format=3 uid="uid://dxwhq4pw7hlfh"]
 
 [ext_resource type="Script" uid="uid://ty5oyx2coyh2" path="res://scenes/MainScene/debug_mouse.gd" id="1_1ka3p"]
-[ext_resource type="Script" uid="uid://8uuaxeslu4tu" path="res://scenes/MainScene/Basin.gd" id="2_spuhd"]
+[ext_resource type="Script" uid="uid://8uuaxeslu4tu" path="res://scenes/MainScene/basin.gd" id="2_spuhd"]
 [ext_resource type="Script" uid="uid://veklv46j4u2p" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
 [ext_resource type="PackedScene" uid="uid://bohqdnkljiicp" path="res://scenes/HexGridScene/HexGridScene.tscn" id="3_y65c2"]
-[ext_resource type="Shader" uid="uid://ci8ko54eis2pm" path="res://scenes/MainScene/water_shader.gdshader" id="4_y65c2"]
+[ext_resource type="Shader" path="res://scenes/MainScene/water_shader.gdshader" id="4_y65c2"]
 [ext_resource type="Script" uid="uid://b5hdn0rcxxxon" path="res://scenes/MainScene/aqueduct_handler.gd" id="5_3cvap"]
-[ext_resource type="Script" path="res://scenes/MainScene/omni_light_3d.gd" id="7_spiu4"]
+[ext_resource type="Script" uid="uid://fu082glnrdii" path="res://scenes/MainScene/omni_light_3d.gd" id="7_spiu4"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ka3p"]
 albedo_color = Color(1, 0, 0, 1)
@@ -69,7 +69,7 @@ sky = SubResource("Sky_spuhd")
 ambient_light_source = 2
 ambient_light_color = Color(0.884557, 0.910596, 0.905712, 1)
 ambient_light_sky_contribution = 0.15
-ambient_light_energy = 0.6
+ambient_light_energy = 0.38
 reflected_light_source = 2
 
 [node name="MainScene" type="Node3D"]
@@ -154,6 +154,7 @@ script = ExtResource("7_spiu4")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.5586, 14.6013, -0.0531769)
 light_energy = 5.439
 light_size = 2.255
+shadow_enabled = true
 omni_range = 21.68
 omni_attenuation = 0.408
 
@@ -161,6 +162,7 @@ omni_attenuation = 0.408
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.0354, 14.6013, -0.0531769)
 light_energy = 5.439
 light_size = 2.255
+shadow_enabled = true
 omni_range = 21.68
 omni_attenuation = 0.408
 
@@ -168,6 +170,7 @@ omni_attenuation = 0.408
 transform = Transform3D(-0.0131768, 0, -0.999913, 0, 1, 0, 0.999913, 0, -0.0131768, 2.55345, 14.6013, 15.7425)
 light_energy = 5.439
 light_size = 2.255
+shadow_enabled = true
 omni_range = 21.68
 omni_attenuation = 0.408
 
@@ -175,8 +178,13 @@ omni_attenuation = 0.408
 transform = Transform3D(-0.0131768, 0, -0.999913, 0, 1, 0, 0.999913, 0, -0.0131768, 2.96976, 14.6013, -15.8488)
 light_energy = 5.439
 light_size = 2.255
+shadow_enabled = true
 omni_range = 21.68
 omni_attenuation = 0.408
+
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.490265, 0.871573, 0, -0.871573, -0.490265, 0, 0, 0)
+sky_mode = 2
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_y65c2")
