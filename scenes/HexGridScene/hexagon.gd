@@ -12,8 +12,8 @@ class AqueductNode:
 	var water : WaterGraph.WaterNode
 	var in_bits : int
 	var out_bits : int
+	var aque_model : MeshInstance3D
 var nodes : Array[AqueductNode]
-var aque_model : MeshInstance3D
 
 enum AQUEDUCT_DIRECTION {
 	NE =  1,
@@ -43,51 +43,71 @@ func _ready():
 	o.water = WaterGraph.WaterNode.new(get_hex_position())
 	o.in_bits = 0
 	o.out_bits = 0
+	o.aque_model = MeshInstance3D.new()
+	add_child(o.aque_model)
 	nodes.append(o)
 	o = AqueductNode.new()
 	o.water = WaterGraph.WaterNode.new(get_hex_position())
 	o.in_bits = 0
 	o.out_bits = 0
+	o.aque_model = MeshInstance3D.new()
+	add_child(o.aque_model)
 	nodes.append(o)
 	o = AqueductNode.new()
 	o.water = WaterGraph.WaterNode.new(get_hex_position())
 	o.in_bits = 0
 	o.out_bits = 0
+	o.aque_model = MeshInstance3D.new()
+	add_child(o.aque_model)
 	nodes.append(o)
 	o = AqueductNode.new()
 	o.water = WaterGraph.WaterNode.new(get_hex_position())
 	o.in_bits = 0
 	o.out_bits = 0
+	o.aque_model = MeshInstance3D.new()
+	add_child(o.aque_model)
 	nodes.append(o)
 	o = AqueductNode.new()
 	o.water = WaterGraph.WaterNode.new(get_hex_position())
 	o.in_bits = 0
 	o.out_bits = 0
+	o.aque_model = MeshInstance3D.new()
+	add_child(o.aque_model)
 	nodes.append(o)
 	o = AqueductNode.new()
 	o.water = WaterGraph.WaterNode.new(get_hex_position())
 	o.in_bits = 0
 	o.out_bits = 0
+	o.aque_model = MeshInstance3D.new()
+	add_child(o.aque_model)
 	nodes.append(o)
 	o = AqueductNode.new()
 	o.water = WaterGraph.WaterNode.new(get_hex_position())
 	o.in_bits = 0
 	o.out_bits = 0
+	o.aque_model = MeshInstance3D.new()
+	add_child(o.aque_model)
 	nodes.append(o)
 	o = AqueductNode.new()
 	o.water = WaterGraph.WaterNode.new(get_hex_position())
 	o.in_bits = 0
 	o.out_bits = 0
+	o.aque_model = MeshInstance3D.new()
+	add_child(o.aque_model)
 	nodes.append(o)
 	o = AqueductNode.new()
 	o.water = WaterGraph.WaterNode.new(get_hex_position())
 	o.in_bits = 0
 	o.out_bits = 0
+	o.aque_model = MeshInstance3D.new()
+	add_child(o.aque_model)
 	nodes.append(o)
 	o = AqueductNode.new()
 	o.water = WaterGraph.WaterNode.new(get_hex_position())
 	o.in_bits = 0
 	o.out_bits = 0
+	o.aque_model = MeshInstance3D.new()
+	add_child(o.aque_model)
 	nodes.append(o)
 
 func add_aqueduct_in_for_height(height, in_dir):
@@ -105,11 +125,15 @@ func add_aqueduct_in_for_height(height, in_dir):
 	update_aqueduct_model()
 
 func update_aqueduct_model():
-	if aque_model == null:
-		aque_model = MeshInstance3D.new()
-		add_child(aque_model)
 	
-	#TODO Set mesh
+	for i in range(len(nodes)):
+		var data_obj
+		if not (nodes[i].in_bits | nodes[i].out_bits) in AqueductConstants.auqeduct_for_connection_bitset.keys():
+			data_obj = AqueductConstants.auqeduct_for_connection_bitset[1]
+		else:
+			data_obj = AqueductConstants.auqeduct_for_connection_bitset[nodes[i].in_bits | nodes[i].out_bits]
+		nodes[i].auqe_model.mesh = data_obj["obj"]
+		nodes[i].rotation_degrees.y = data_obj["rot"]
 
 func _process(delta: float) -> void:
 	debug_sphere.scale = Vector3.ONE * water_node.water_amt / 2

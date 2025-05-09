@@ -15,6 +15,10 @@ run/main_scene="uid://dxwhq4pw7hlfh"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+AqueductConstants="*res://scripts/aqueduct_constants.gd"
+
 [input]
 
 Pause={

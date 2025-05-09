@@ -26,11 +26,13 @@ func get_id_from_hex_coord(coord):
 
 func build_pathing():
 	pathing = AStar2D.new()
-	var m
+	var m = null
 	for c in get_children():
 		if c is MeshInstance3D:
 			m = c
 			break
+	
+	var lines = []
 	
 	for c in get_children():
 		if c.is_in_group("chunk_group"):
