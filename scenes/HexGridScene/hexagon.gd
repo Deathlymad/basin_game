@@ -47,6 +47,8 @@ func _ready():
 		o.aque_model = MeshInstance3D.new()
 		o.aque_model.scale = Vector3.ONE * 0.009
 		o.aque_model.position.y = i - position.y + 5
+		o.aque_model.material_override = StandardMaterial3D.new()
+		o.aque_model.material_override.albedo_texture = load("res://assets/textures/wood.png")
 		add_child(o.aque_model)
 		nodes.append(o)
 
