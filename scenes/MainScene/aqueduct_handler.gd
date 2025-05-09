@@ -76,6 +76,6 @@ func place():
 	for t in temp_aqueducts:
 		remove_child(t[0])
 		t[0].queue_free()
-		if t[1] != null:
+		if t[1] != null and $"../Basin".get_hexagon_from_hex_coord(t[1]) != null:
 			$"../Basin".get_hexagon_from_hex_coord(t[1]).add_aqueduct_in_for_height(5, t[2])
 	temp_aqueducts.clear()
