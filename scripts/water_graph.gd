@@ -24,6 +24,7 @@ class WaterNode:
 	var pos : HexHelper.HexCoordinate
 	var water_amt : float
 	var pollution_amt : float
+	var should_evaporate : bool = true
 	var volume : float :
 		get():
 			return water_amt + pollution_amt
@@ -71,7 +72,7 @@ class WaterNode:
 				dest.dest.pollution_amt += min(dest.flow * flow_usage, transfer, pollution_amt)
 				pollution_amt -= min(dest.flow * flow_usage, transfer, pollution_amt)
 		
-		if last_water_amt >= water_amt:
+		if last_water_amt >= water_amt and should_evaporate:
 			#evaporation
 			water_amt /= 1.1
 		if water_amt < 0.2:
@@ -93,6 +94,7 @@ class WaterNode:
 			v.source = self
 			v.dest = other
 			v.flow = flow
+			v.weight = weight
 			v.weight_offset = weight_off
 			destinations.append(v)
 			other.sources.append(v)

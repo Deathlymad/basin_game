@@ -8,14 +8,21 @@ var neighbors : Array[Hexagon]
 
 var debug_sphere
 
-var aqueduct_bits : int
+class AqueductNode:
+	var water : WaterGraph.WaterNode
+	var in_bits : int
+	var out_bits : int
+var nodes : Array[AqueductNode]
+var aque_model : MeshInstance3D
+
 enum AQUEDUCT_DIRECTION {
 	NE =  1,
 	E  =  2,
 	SE =  4,
 	SW =  8,
 	W  = 16,
-	NW = 32
+	NW = 32,
+	GROUND = 64
 }
 
 var water_node : WaterGraph.WaterNode = WaterGraph.WaterNode.new(_hex_position)
@@ -31,6 +38,78 @@ func _ready():
 	debug_sphere = obj
 	
 	get_parent().get_parent().graph.add_node(water_node)
+	
+	var o = AqueductNode.new()
+	o.water = WaterGraph.WaterNode.new(get_hex_position())
+	o.in_bits = 0
+	o.out_bits = 0
+	nodes.append(o)
+	o = AqueductNode.new()
+	o.water = WaterGraph.WaterNode.new(get_hex_position())
+	o.in_bits = 0
+	o.out_bits = 0
+	nodes.append(o)
+	o = AqueductNode.new()
+	o.water = WaterGraph.WaterNode.new(get_hex_position())
+	o.in_bits = 0
+	o.out_bits = 0
+	nodes.append(o)
+	o = AqueductNode.new()
+	o.water = WaterGraph.WaterNode.new(get_hex_position())
+	o.in_bits = 0
+	o.out_bits = 0
+	nodes.append(o)
+	o = AqueductNode.new()
+	o.water = WaterGraph.WaterNode.new(get_hex_position())
+	o.in_bits = 0
+	o.out_bits = 0
+	nodes.append(o)
+	o = AqueductNode.new()
+	o.water = WaterGraph.WaterNode.new(get_hex_position())
+	o.in_bits = 0
+	o.out_bits = 0
+	nodes.append(o)
+	o = AqueductNode.new()
+	o.water = WaterGraph.WaterNode.new(get_hex_position())
+	o.in_bits = 0
+	o.out_bits = 0
+	nodes.append(o)
+	o = AqueductNode.new()
+	o.water = WaterGraph.WaterNode.new(get_hex_position())
+	o.in_bits = 0
+	o.out_bits = 0
+	nodes.append(o)
+	o = AqueductNode.new()
+	o.water = WaterGraph.WaterNode.new(get_hex_position())
+	o.in_bits = 0
+	o.out_bits = 0
+	nodes.append(o)
+	o = AqueductNode.new()
+	o.water = WaterGraph.WaterNode.new(get_hex_position())
+	o.in_bits = 0
+	o.out_bits = 0
+	nodes.append(o)
+
+func add_aqueduct_in_for_height(height, in_dir):
+	if nodes[height].out_bits == 0:
+		nodes[height].out_bits |= 64
+		nodes[height].water.add_destination_neighbor(water_node, 50, 0, 0)
+	nodes[height].in_bits |= 1 << in_dir
+	nodes[height].water.add_source_neighbor(get_neighbor_in_dir(in_dir).nodes[height].water, 5, 1, 0)
+	
+	if get_neighbor_in_dir(in_dir).nodes[height].out_bits & 63 == 0:
+		get_neighbor_in_dir(in_dir).nodes[height].water.remove_destination_neighbor(water_node)
+	
+	get_neighbor_in_dir(in_dir).nodes[height].out_bits |= 1 << HexHelper.get_opposite_hex_direction(in_dir)
+	get_neighbor_in_dir(in_dir).update_aqueduct_model()
+	update_aqueduct_model()
+
+func update_aqueduct_model():
+	if aque_model == null:
+		aque_model = MeshInstance3D.new()
+		add_child(aque_model)
+	
+	#TODO Set mesh
 
 func _process(delta: float) -> void:
 	debug_sphere.scale = Vector3.ONE * water_node.water_amt / 2

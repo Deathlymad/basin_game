@@ -4,6 +4,7 @@ var start_pos : HexHelper.HexCoordinate = null
 var aqueduct_scene = preload("res://scenes/Aqueduct/Aqueduct.tscn")
 var temp_aqueducts = []
 
+
 var last_hex = null
 
 func hex_raycast(pos : Vector2):
@@ -45,33 +46,36 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func update_aqueduct_structure(target : HexHelper.HexCoordinate):
 	for a in temp_aqueducts:
-		if a:
-			remove_child(a)
-			a.queue_free()
+		if a[0]:
+			remove_child(a[0])
+			a[0].queue_free()
 	temp_aqueducts.clear()
 	var path = $"../Basin".compute_path(start_pos, target)
 	for i in range(1, len(path)):
 		var p = aqueduct_scene.instantiate()
-		p.position = path[i - 1].to_carthesian()
+		p.position = path[i - 1].to_carthesian() + Vector3.UP * path[i - 1].distance_to(HexHelper.HexCoordinate.new(0,0,0))
 		var dir = path[i - 1].duplicate().minus(path[i]).get_direction()
 		if dir == null:
 			dir = HexHelper.get_opposite_hex_direction(path[i].duplicate().minus(path[i - 1]).get_direction())
 		if dir != null:
 			p.rotation_degrees.y = HexHelper.get_opposite_hex_direction(dir) * 60 - 60
-			temp_aqueducts.append(p)
+			temp_aqueducts.append([p, null])
 			add_child(p)
 		else:
 			pass
 		p = aqueduct_scene.instantiate()
-		p.position = path[i].to_carthesian()
+		p.position = path[i].to_carthesian() + Vector3.UP * path[i].distance_to(HexHelper.HexCoordinate.new(0,0,0))
 		if dir != null:
 			p.rotation_degrees.y = dir * 60 - 60
-			temp_aqueducts.append(p)
+			temp_aqueducts.append([p, path[i], HexHelper.get_prev_hex_direction(dir)])
 			add_child(p)
 		else:
 			pass
 	
 func place():
 	for t in temp_aqueducts:
-		t.make_real()
+		remove_child(t[0])
+		t[0].queue_free()
+		if t[1] != null:
+			$"../Basin".get_hexagon_from_hex_coord(t[1]).add_aqueduct_in_for_height(5, t[2])
 	temp_aqueducts.clear()
