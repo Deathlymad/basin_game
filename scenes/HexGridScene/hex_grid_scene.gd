@@ -1,7 +1,7 @@
 extends Node3D
 
 var hexagons : Array[Hexagon]
-@export var size : int
+@export var size := 6
 @export var direction : HexHelper.HexDirection
 
 var uv_ratio : Vector2

@@ -5,6 +5,10 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8yreh"]
 albedo_texture = ExtResource("2_raw18")
+metallic_specular = 0.09
+roughness = 0.25
+emission = Color(0, 0, 0.670588, 1)
+ao_light_affect = 1.0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_l445s"]
 
