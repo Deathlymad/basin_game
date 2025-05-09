@@ -24,7 +24,7 @@ func _calculate_global_uv_ratio():
 		max.x = max(pt.x, max.y)
 		max.y = max(pt.z, max.y)
 	
-	uv_ratio = max - min
+	uv_ratio = max - min + Vector2(12, 12)
 	
 func _ready():
 	hexagons = []
@@ -95,7 +95,8 @@ func build_chunk_neighborhood():
 
 func add_hexagons_to_geometry(arrays):
 	for hex in hexagons:
-		var res = hex._update_mesh(uv_ratio, Vector2(global_position.x, global_position.z), hex.get_hex_position().to_carthesian(), arrays[Mesh.ARRAY_VERTEX].size())
+		var glob_pos = global_position + HexHelper.HexCoordinate.new(-1,0,-size - 1).to_carthesian()
+		var res = hex._update_mesh(uv_ratio, Vector2(glob_pos.x, glob_pos.z), hex.get_hex_position().to_carthesian(), arrays[Mesh.ARRAY_VERTEX].size())
 		arrays[Mesh.ARRAY_VERTEX].append_array(res[0])
 		arrays[Mesh.ARRAY_INDEX].append_array(res[1])
 		arrays[Mesh.ARRAY_TEX_UV].append_array(res[2])
@@ -157,7 +158,8 @@ func generate_chunk_border_in_dir(arrays, d:HexHelper.HexDirection):
 	start_pos = start_pos.step_in_dir(d)
 	var dir = HexHelper.get_next_hex_direction(d)
 	
-	var uv_offset = Vector2(global_position.x, global_position.z)
+	var glob_pos = global_position + HexHelper.HexCoordinate.new(-1,0,-size - 1).to_carthesian()
+	var uv_offset = Vector2(glob_pos.x, glob_pos.z)
 	
 	var pos = start_pos.duplicate()
 	var off = 0
