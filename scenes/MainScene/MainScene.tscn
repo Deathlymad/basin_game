@@ -77,24 +77,29 @@ script = ExtResource("2_spuhd")
 hexgrid_radius = 4
 
 [node name="NorthEastChunk" parent="Basin" instance=ExtResource("3_y65c2")]
+visible = false
 
 [node name="EastChunk" parent="Basin" instance=ExtResource("3_y65c2")]
+visible = false
 direction = 1
 
 [node name="SouthEastChunk" parent="Basin" instance=ExtResource("3_y65c2")]
+visible = false
 direction = 2
 
 [node name="SouthWestCHunk" parent="Basin" instance=ExtResource("3_y65c2")]
+visible = false
 direction = 3
 
 [node name="WestChunk" parent="Basin" instance=ExtResource("3_y65c2")]
+visible = false
 direction = 4
 
 [node name="NorthWestChunk" parent="Basin" instance=ExtResource("3_y65c2")]
+visible = false
 direction = 5
 
 [node name="grid" type="MeshInstance3D" parent="Basin"]
-visible = false
 mesh = SubResource("ArrayMesh_spuhd")
 
 [node name="Node3D" type="Node3D" parent="."]
@@ -106,9 +111,21 @@ fov = 35.1
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="Control" type="Label" parent="CanvasLayer"]
+[node name="PositionDisplay" type="Label" parent="CanvasLayer"]
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="WaterDisplay" type="Label" parent="CanvasLayer"]
+offset_left = 4.0
+offset_top = 43.0
+offset_right = 44.0
+offset_bottom = 83.0
+
+[node name="PollutionDisplay" type="Label" parent="CanvasLayer"]
+offset_left = 2.0
+offset_top = 75.0
+offset_right = 42.0
+offset_bottom = 115.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)

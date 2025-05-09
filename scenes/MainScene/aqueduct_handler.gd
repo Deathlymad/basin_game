@@ -53,17 +53,23 @@ func update_aqueduct_structure(target : HexHelper.HexCoordinate):
 	for i in range(1, len(path)):
 		var p = aqueduct_scene.instantiate()
 		p.position = path[i - 1].to_carthesian()
-		var dir = path[i - 1].minus(path[i]).get_direction()
-		if dir:
-			p.rotation_degrees.y = HexHelper.get_opposite_hex_direction(dir) * 60 - 120
-		temp_aqueducts.append(p)
-		add_child(p)
+		var dir = path[i - 1].duplicate().minus(path[i]).get_direction()
+		if dir == null:
+			dir = HexHelper.get_opposite_hex_direction(path[i].duplicate().minus(path[i - 1]).get_direction())
+		if dir != null:
+			p.rotation_degrees.y = HexHelper.get_opposite_hex_direction(dir) * 60 - 60
+			temp_aqueducts.append(p)
+			add_child(p)
+		else:
+			pass
 		p = aqueduct_scene.instantiate()
 		p.position = path[i].to_carthesian()
-		if dir:
+		if dir != null:
 			p.rotation_degrees.y = dir * 60 - 60
-		temp_aqueducts.append(p)
-		add_child(p)
+			temp_aqueducts.append(p)
+			add_child(p)
+		else:
+			pass
 	
 func place():
 	for t in temp_aqueducts:

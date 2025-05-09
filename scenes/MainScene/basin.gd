@@ -40,10 +40,6 @@ func build_pathing():
 					if not pathing.are_points_connected(id, id1):
 						pathing.connect_points(id, id1)
 
-
-
-
-
 func compute_path(start, end):
 	if not pathing.has_point(get_id_from_hex_coord(start)) or not pathing.has_point(get_id_from_hex_coord(end)):
 		return []
@@ -65,10 +61,15 @@ func generate_neighborhood_graph():
 	
 	var lines = []
 	
+	var hs = []
 	for c in get_children():
 		if not c is MeshInstance3D:
 			for h in c.hexagons:
 				for n in h.neighbors:
+					if n.get_hex_position() in hs:
+						continue
+					else:
+						hs.append(h.get_hex_position())
 					lines.append(h.get_hex_position().to_carthesian())
 					lines.append(n.get_hex_position().to_carthesian())
 	
@@ -80,31 +81,22 @@ func generate_neighborhood_graph():
 	arrays[Mesh.ARRAY_VERTEX].append_array(lines)
 	m.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, arrays)
 
-
-
-
-
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		if event.is_action_released("debug"):
 			generate_neighborhood_graph()
 
-
-
-
-
 func get_chunk_by_direction(dir : HexHelper.HexDirection):
 	for c in get_children():
-		if c.direction == dir:
-			return c
-
-
-
+		if not c is MeshInstance3D:
+			if c.direction == dir:
+				return c
 
 
 func get_hexagon_from_hex_coord(coord : HexHelper.HexCoordinate):
 	for c in get_children():
-		var tmp = c.contains(coord)
-		if tmp:
-			return c.get_hexagon(coord)
+		if not c is MeshInstance3D:
+			var tmp = c.contains(coord)
+			if tmp:
+				return c.get_hexagon(coord)
 	return null

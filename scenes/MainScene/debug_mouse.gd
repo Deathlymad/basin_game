@@ -17,5 +17,11 @@ func _input(evt : InputEvent):
 		if "position" in res:
 			var coord = HexHelper.HexCoordinate.from_carthesian(res["position"])
 			coord.round_coord()
-			$CanvasLayer/Control.text = coord.to_string()
+			$CanvasLayer/PositionDisplay.text = coord.to_string()
+			var hex = $Basin.get_hexagon_from_hex_coord(coord)
+			if hex:
+				pass
+			else:
+				$CanvasLayer/WaterDisplay.text = "-"
+				$CanvasLayer/PollutionDisplay.text = "-"
 			$DebugDot.position = res["position"]
