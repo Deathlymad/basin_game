@@ -32,15 +32,13 @@ func _ready():
 	var next_dir = HexHelper.get_next_hex_direction(direction)
 	start_pos = start_pos.step_in_dir(direction)
 	
-	var last_major_hex = null
 	for i in range(size):
 		var hex = Hexagon.new()
 		hex.set_hex_position(start_pos.duplicate())
 		hex.height = hex.get_hex_position().distance_to(HexHelper.HexCoordinate.new(0,0,0))
-		if(last_major_hex != null):
-			hex.add_neighbor(last_major_hex) 
+		if(i > 0):
 			hex.add_neighbor(hexagons[len(hexagons) - (size - i - 1) - 1])
-		last_major_hex = hex
+			hex.add_neighbor(hexagons[len(hexagons) - (size - i - 1) - 2])
 		hexagons.append(hex)
 		var step_pos = start_pos.duplicate()
 		start_pos.step_in_dir(direction)
@@ -50,10 +48,10 @@ func _ready():
 			hex = Hexagon.new()
 			hex.set_hex_position(step_pos.duplicate())
 			hex.height = hex.get_hex_position().distance_to(HexHelper.HexCoordinate.new(0,0,0))
-			hex.add_neighbor(last_minor_hex)
-			if (size - (i - 1)) <= len(hexagons):
-				hex.add_neighbor(hexagons[len(hexagons) - (size - (i - 1))])
-				hex.add_neighbor(hexagons[len(hexagons) - (size - (i - 1)) + 1])
+			hex.add_neighbor(hexagons[len(hexagons) - 1])
+			if(i > 0):
+				hex.add_neighbor(hexagons[len(hexagons) - (size - i - 1) - 1])
+				hex.add_neighbor(hexagons[len(hexagons) - (size - i - 1) - 2])
 			last_minor_hex = hex
 			hexagons.append(hex)
 			step_pos.step_in_dir(next_dir)

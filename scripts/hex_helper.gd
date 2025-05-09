@@ -21,7 +21,7 @@ static func get_next_hex_direction(dir : HexDirection):
 static func get_prev_hex_direction(dir : HexDirection):
 	return (HexDirection.DIRECTION_MAX + dir - 1) % HexDirection.DIRECTION_MAX
 static func get_opposite_hex_direction(dir : HexDirection):
-	return (dir + 4) % HexDirection.DIRECTION_MAX
+	return (dir + 3) % HexDirection.DIRECTION_MAX
 
 static func to_xz(v : Vector3) -> Vector2:
 	return Vector2(v.x, v.z)

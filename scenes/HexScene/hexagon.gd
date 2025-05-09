@@ -33,6 +33,8 @@ func add_neighbor(hex : Hexagon, propagate:bool = true):
 		if propagate:
 			hex.add_neighbor(self, false)
 		neighbors.append(hex)
+	else:
+		pass
 func remove_neighbor(hex : Hexagon, propagate:bool = true):
 	if hex in neighbors:
 		if propagate:
