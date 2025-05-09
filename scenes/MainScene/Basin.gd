@@ -2,17 +2,24 @@ extends Node3D
 
 @export var hexgrid_radius : int
 var pathing : AStar2D
+
+var graph : WaterGraph = WaterGraph.new()
+
 func _enter_tree():
 	for c in get_children():
-		if not c is MeshInstance3D:
+		if c.is_in_group("chunk_group"):
 			c.size = hexgrid_radius
 			
 func _ready():
 	for c in get_children():
-		if not c is MeshInstance3D:
+		if c.is_in_group("chunk_group"):
 			c.build_chunk_neighborhood()
 	build_pathing()
-	
+	$Timer.timeout.connect(update_graph)
+
+func update_graph():
+	graph.update()
+
 func get_id_from_hex_coord(coord):
 	return  coord.pos.x * 1024 + 128 * 1024 + coord.pos.z + 128
 
@@ -28,7 +35,7 @@ func build_pathing():
 	var lines = []
 	
 	for c in get_children():
-		if not c is MeshInstance3D:
+		if c.is_in_group("chunk_group"):
 			for h in c.hexagons:
 				for n in h.neighbors:
 					var id = get_id_from_hex_coord(h.get_hex_position())
@@ -63,7 +70,7 @@ func generate_neighborhood_graph():
 	
 	var hs = []
 	for c in get_children():
-		if not c is MeshInstance3D:
+		if c.is_in_group("chunk_group"):
 			for h in c.hexagons:
 				for n in h.neighbors:
 					if n.get_hex_position() in hs:
@@ -88,14 +95,14 @@ func _input(event: InputEvent) -> void:
 
 func get_chunk_by_direction(dir : HexHelper.HexDirection):
 	for c in get_children():
-		if not c is MeshInstance3D:
+		if c.is_in_group("chunk_group"):
 			if c.direction == dir:
 				return c
 
 
 func get_hexagon_from_hex_coord(coord : HexHelper.HexCoordinate):
 	for c in get_children():
-		if not c is MeshInstance3D:
+		if c.is_in_group("chunk_group"):
 			var tmp = c.contains(coord)
 			if tmp:
 				return c.get_hexagon(coord)
