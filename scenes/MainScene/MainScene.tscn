@@ -1,8 +1,8 @@
-[gd_scene load_steps=18 format=3 uid="uid://dxwhq4pw7hlfh"]
+[gd_scene load_steps=19 format=3 uid="uid://dxwhq4pw7hlfh"]
 
 [ext_resource type="Script" uid="uid://ty5oyx2coyh2" path="res://scenes/MainScene/debug_mouse.gd" id="1_1ka3p"]
-[ext_resource type="Script" uid="uid://b4l4d2ni65i6r" path="res://scenes/MainScene/basin.gd" id="2_spuhd"]
-[ext_resource type="Script" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
+[ext_resource type="Script" uid="uid://8uuaxeslu4tu" path="res://scenes/MainScene/basin.gd" id="2_spuhd"]
+[ext_resource type="Script" uid="uid://veklv46j4u2p" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
 [ext_resource type="PackedScene" uid="uid://bohqdnkljiicp" path="res://scenes/HexGridScene/HexGridScene.tscn" id="3_y65c2"]
 [ext_resource type="Shader" uid="uid://ci8ko54eis2pm" path="res://scenes/MainScene/water_shader.gdshader" id="4_y65c2"]
 [ext_resource type="Script" uid="uid://b5hdn0rcxxxon" path="res://scenes/MainScene/aqueduct_handler.gd" id="5_3cvap"]
@@ -74,7 +74,7 @@ mesh = SubResource("PointMesh_1ka3p")
 
 [node name="Basin" type="Node3D" parent="."]
 script = ExtResource("2_spuhd")
-size = 12
+hexgrid_radius = 4
 
 [node name="NorthEastChunk" parent="Basin" instance=ExtResource("3_y65c2")]
 
@@ -93,7 +93,8 @@ direction = 4
 [node name="NorthWestChunk" parent="Basin" instance=ExtResource("3_y65c2")]
 direction = 5
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Basin"]
+[node name="grid" type="MeshInstance3D" parent="Basin"]
+visible = false
 mesh = SubResource("ArrayMesh_spuhd")
 
 [node name="Node3D" type="Node3D" parent="."]
@@ -114,7 +115,6 @@ transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
 visible = false
 mesh = SubResource("PlaneMesh_3cvap")
 surface_material_override/0 = SubResource("ShaderMaterial_73lv8")
-
 
 [node name="AqueductContainer" type="Node3D" parent="."]
 script = ExtResource("5_3cvap")
