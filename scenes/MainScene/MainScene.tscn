@@ -60,8 +60,8 @@ shader_parameter/uWaveScale = 2.0
 
 [sub_resource type="Environment" id="Environment_y65c2"]
 background_mode = 1
-background_color = Color(0.20082, 0.520271, 0.600977, 1)
-background_energy_multiplier = 1.21
+background_color = Color(0.409457, 0.631084, 0.583549, 1)
+background_energy_multiplier = 0.74
 ambient_light_source = 2
 ambient_light_color = Color(0.884557, 0.910596, 0.905712, 1)
 reflected_light_source = 2
