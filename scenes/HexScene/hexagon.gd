@@ -3,8 +3,30 @@ extends Node3D
 class_name Hexagon
 
 var height : float
-var hex_position : HexHelper.HexCoordinate
+var _hex_position : HexHelper.HexCoordinate
 var neighbors : Array[Hexagon]
+
+
+func _get_property_list():
+	return [
+		{
+			"name" : "Hex Coordinate", 
+			"type" : TYPE_VECTOR3, 
+			"usage":PROPERTY_USAGE_DEFAULT
+		}
+	]
+func _get(_prop):
+	return _hex_position.pos
+func _set(_prop, val):
+	if _hex_position:
+		_hex_position.pos = val
+		return true
+	return false
+
+func get_hex_position():
+	return _hex_position
+func set_hex_position(p):
+	_hex_position = p
 
 func add_neighbor(hex : Hexagon, propagate:bool = true):
 	if not hex in neighbors:
@@ -18,7 +40,7 @@ func remove_neighbor(hex : Hexagon, propagate:bool = true):
 		neighbors.erase(hex)
 func get_neighbor_in_dir(dir : HexHelper.HexDirection):
 	for hex in neighbors:
-		if hex_position.duplicate().minus(hex.hex_position).get_direction() == dir:
+		if _hex_position.duplicate().minus(hex._hex_position).get_direction() == dir:
 			return hex
 
 func _update_mesh(uv_ratio : Vector2, uv_offset : Vector2, coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):

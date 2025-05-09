@@ -1,9 +1,11 @@
-[gd_scene load_steps=15 format=3 uid="uid://dxwhq4pw7hlfh"]
+[gd_scene load_steps=18 format=3 uid="uid://dxwhq4pw7hlfh"]
 
 [ext_resource type="Script" uid="uid://ty5oyx2coyh2" path="res://scenes/MainScene/debug_mouse.gd" id="1_1ka3p"]
+[ext_resource type="Script" uid="uid://b4l4d2ni65i6r" path="res://scenes/MainScene/basin.gd" id="2_spuhd"]
 [ext_resource type="Script" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
 [ext_resource type="PackedScene" uid="uid://bohqdnkljiicp" path="res://scenes/HexGridScene/HexGridScene.tscn" id="3_y65c2"]
 [ext_resource type="Shader" uid="uid://ci8ko54eis2pm" path="res://scenes/MainScene/water_shader.gdshader" id="4_y65c2"]
+[ext_resource type="Script" uid="uid://b5hdn0rcxxxon" path="res://scenes/MainScene/aqueduct_handler.gd" id="5_3cvap"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ka3p"]
 albedo_color = Color(1, 0, 0, 1)
@@ -14,6 +16,8 @@ point_size = 16.0
 
 [sub_resource type="PointMesh" id="PointMesh_1ka3p"]
 material = SubResource("StandardMaterial3D_1ka3p")
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_spuhd"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_3cvap"]
 
@@ -60,30 +64,29 @@ script = ExtResource("1_1ka3p")
 [node name="DebugDot" type="MeshInstance3D" parent="."]
 mesh = SubResource("PointMesh_1ka3p")
 
-[node name="Node3D2" type="Node3D" parent="."]
-
-[node name="NorthEastChunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
+[node name="Basin" type="Node3D" parent="."]
+script = ExtResource("2_spuhd")
 size = 12
 
-[node name="EastChunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 12
+[node name="NorthEastChunk" parent="Basin" instance=ExtResource("3_y65c2")]
+
+[node name="EastChunk" parent="Basin" instance=ExtResource("3_y65c2")]
 direction = 1
 
-[node name="SouthEastChunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 12
+[node name="SouthEastChunk" parent="Basin" instance=ExtResource("3_y65c2")]
 direction = 2
 
-[node name="SouthWestCHunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 12
+[node name="SouthWestCHunk" parent="Basin" instance=ExtResource("3_y65c2")]
 direction = 3
 
-[node name="WestChunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 12
+[node name="WestChunk" parent="Basin" instance=ExtResource("3_y65c2")]
 direction = 4
 
-[node name="NoethWestChunk" parent="Node3D2" instance=ExtResource("3_y65c2")]
-size = 12
+[node name="NorthWestChunk" parent="Basin" instance=ExtResource("3_y65c2")]
 direction = 5
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Basin"]
+mesh = SubResource("ArrayMesh_spuhd")
 
 [node name="Node3D" type="Node3D" parent="."]
 script = ExtResource("3_fupjk")
@@ -102,6 +105,7 @@ transform = Transform3D(1, 0, 0, 0, 0.0945601, 0.995519, 0, -0.995519, 0.0945601
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+visible = false
 mesh = SubResource("PlaneMesh_3cvap")
 surface_material_override/0 = SubResource("ShaderMaterial_73lv8")
 
@@ -112,3 +116,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.4311, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -233.886, 83.1432, 0)
 light_color = Color(1, 0.847059, 0.639216, 1)
 sky_mode = 2
+
+[node name="AqueductContainer" type="Node3D" parent="."]
+script = ExtResource("5_3cvap")

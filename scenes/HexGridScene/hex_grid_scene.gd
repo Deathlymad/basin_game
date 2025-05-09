@@ -1,7 +1,7 @@
 extends Node3D
 
 var hexagons : Array[Hexagon]
-@export var size : int
+var size : int
 @export var direction : HexHelper.HexDirection
 
 var uv_ratio : Vector2
@@ -31,13 +31,12 @@ func _ready():
 	var start_pos = HexHelper.HexCoordinate.new(0, 0, 0)
 	var next_dir = HexHelper.get_next_hex_direction(direction)
 	start_pos = start_pos.step_in_dir(direction)
-	var root = start_pos.duplicate()
 	
 	var last_major_hex = null
 	for i in range(size):
 		var hex = Hexagon.new()
-		hex.hex_position = start_pos.duplicate()
-		hex.height = hex.hex_position.distance_to(HexHelper.HexCoordinate.new(0,0,0))
+		hex.set_hex_position(start_pos.duplicate())
+		hex.height = hex.get_hex_position().distance_to(HexHelper.HexCoordinate.new(0,0,0))
 		if(last_major_hex != null):
 			hex.add_neighbor(last_major_hex) 
 			hex.add_neighbor(hexagons[len(hexagons) - (size - i - 1) - 1])
@@ -49,8 +48,8 @@ func _ready():
 		var last_minor_hex = hex
 		for j in range(size - i - 1):
 			hex = Hexagon.new()
-			hex.hex_position = step_pos.duplicate()
-			hex.height = hex.hex_position.distance_to(HexHelper.HexCoordinate.new(0,0,0))
+			hex.set_hex_position(step_pos.duplicate())
+			hex.height = hex.get_hex_position().distance_to(HexHelper.HexCoordinate.new(0,0,0))
 			hex.add_neighbor(last_minor_hex)
 			if (size - (i - 1)) <= len(hexagons):
 				hex.add_neighbor(hexagons[len(hexagons) - (size - (i - 1))])
@@ -61,9 +60,42 @@ func _ready():
 	
 	generate_mesh()
 
+func contains(coord : HexHelper.HexCoordinate) -> bool:
+	#TODO this can be solved in constant time with coordinate calculation of chunk extremes
+	for h in hexagons:
+		if coord.matches(h.get_hex_position()):
+			return true
+	return false
+func get_hexagon(coord : HexHelper.HexCoordinate) -> Hexagon:
+	for h in hexagons:
+		if coord.matches(h.get_hex_position()):
+			return h
+	return null
+
+func build_chunk_neighborhood():
+	var origin = HexHelper.HexCoordinate.new(0, 0, 0)
+	var start_pos = HexHelper.HexCoordinate.new(0, 0, 0)
+	start_pos = start_pos.step_in_dir(HexHelper.get_prev_hex_direction(direction))
+	
+	var uv_offset = Vector2(global_position.x, global_position.z)
+	
+	var pos = start_pos.duplicate()
+	var off = 0
+	var last_off = -1
+	for j in range(size):
+		var h = get_parent().get_hexagon_from_hex_coord(pos)
+		if last_off > -1:
+			hexagons[last_off].add_neighbor(h)
+		hexagons[off].add_neighbor(h)
+		last_off = off
+		off += size - j
+		pos.step_in_dir(direction)
+
+#Rendering Code
+
 func add_hexagons_to_geometry(arrays):
 	for hex in hexagons:
-		var res = hex._update_mesh(uv_ratio, Vector2(global_position.x, global_position.z), hex.hex_position.to_carthesian(), arrays[Mesh.ARRAY_VERTEX].size())
+		var res = hex._update_mesh(uv_ratio, Vector2(global_position.x, global_position.z), hex.get_hex_position().to_carthesian(), arrays[Mesh.ARRAY_VERTEX].size())
 		arrays[Mesh.ARRAY_VERTEX].append_array(res[0])
 		arrays[Mesh.ARRAY_INDEX].append_array(res[1])
 		arrays[Mesh.ARRAY_TEX_UV].append_array(res[2])
@@ -119,13 +151,11 @@ func generate_triangles(arrays):
 	
 #THIS IS A FUCKING UGLY PIECE OF CODE BUT AT THIS POINT I CAN'T DEAL WITH DIRECTIONS ANYMORE
 #ALSO APPARENTLY NORTH IS DIRECTED TO CAMERA??? IDEK ANYMORE
-func to_xz(v : Vector3) -> Vector2:
-	return Vector2(v.x, v.z)
-func generate_chunk_border_in_dir(arrays, direction:HexHelper.HexDirection):
+func generate_chunk_border_in_dir(arrays, d:HexHelper.HexDirection):
 	var origin = HexHelper.HexCoordinate.new(0, 0, 0)
 	var start_pos = HexHelper.HexCoordinate.new(0, 0, 0)
-	start_pos = start_pos.step_in_dir(direction)
-	var dir = HexHelper.get_next_hex_direction(direction)
+	start_pos = start_pos.step_in_dir(d)
+	var dir = HexHelper.get_next_hex_direction(d)
 	
 	var uv_offset = Vector2(global_position.x, global_position.z)
 	
@@ -171,10 +201,10 @@ func generate_chunk_border_in_dir(arrays, direction:HexHelper.HexDirection):
 			if j > 0:
 				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
 			
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			if j > 0:
-				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			
 		elif dir == HexHelper.HexDirection.SE:
 			arrays[Mesh.ARRAY_INDEX].append(6 + off * 7)
@@ -214,10 +244,10 @@ func generate_chunk_border_in_dir(arrays, direction:HexHelper.HexDirection):
 			if j > 0:
 				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3(-HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS,pos.distance_to(origin),  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
 			
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			if j > 0:
-				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			
 		elif dir == HexHelper.HexDirection.SW:
 			arrays[Mesh.ARRAY_INDEX].append(1 + off * 7)
@@ -257,10 +287,10 @@ func generate_chunk_border_in_dir(arrays, direction:HexHelper.HexDirection):
 			if j > 0:
 				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3(0, pos.distance_to(origin),        HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
 			
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			if j > 0:
-				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			
 		elif dir == HexHelper.HexDirection.W:
 			arrays[Mesh.ARRAY_INDEX].append(2 + off * 7)
@@ -300,10 +330,10 @@ func generate_chunk_border_in_dir(arrays, direction:HexHelper.HexDirection):
 			if j > 0:
 				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), 0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
 			
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			if j > 0:
-				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			
 		elif dir == HexHelper.HexDirection.NE:
 			arrays[Mesh.ARRAY_INDEX].append(4 + off * 7)
@@ -342,10 +372,10 @@ func generate_chunk_border_in_dir(arrays, direction:HexHelper.HexDirection):
 			if j > 0:
 				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3(0, pos.distance_to(origin), -HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
 			
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			if j > 0:
-				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			
 		elif dir == HexHelper.HexDirection.NW:
 			arrays[Mesh.ARRAY_INDEX].append(3 + off * 7)
@@ -384,10 +414,10 @@ func generate_chunk_border_in_dir(arrays, direction:HexHelper.HexDirection):
 			if j > 0:
 				arrays[Mesh.ARRAY_VERTEX].append(pos.to_carthesian() +  Vector3(HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, pos.distance_to(origin), -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
 			
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			if j > 0:
-				arrays[Mesh.ARRAY_TEX_UV].append((to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			
 		pos.step_in_dir(dir)
 
