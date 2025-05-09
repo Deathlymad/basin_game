@@ -67,7 +67,7 @@ func update_aqueduct_structure(target : HexHelper.HexCoordinate):
 		p.position = path[i].to_carthesian() + Vector3.UP * path[i].distance_to(HexHelper.HexCoordinate.new(0,0,0))
 		if dir != null:
 			p.rotation_degrees.y = dir * 60 - 60
-			temp_aqueducts.append([p, path[i], HexHelper.get_prev_hex_direction(dir)])
+			temp_aqueducts.append([p, path[i], HexHelper.get_prev_hex_direction(dir), path[i - 1], HexHelper.get_prev_hex_direction(HexHelper.get_opposite_hex_direction(dir))])
 			add_child(p)
 		else:
 			pass
@@ -79,7 +79,7 @@ func place():
 		if t[1] != null:
 			var tmp = $"../Basin".get_hexagon_from_hex_coord(t[1])
 			if tmp != null:
-				tmp.add_aqueduct_in_for_height(5, t[2])
+				tmp.add_aqueduct_in_for_height(5, t[2], $"../Basin".get_hexagon_from_hex_coord(t[3]), t[4])
 			else:
 				pass
 	temp_aqueducts.clear()

@@ -46,29 +46,30 @@ func _ready():
 		o.out_bits = 0
 		o.aque_model = MeshInstance3D.new()
 		o.aque_model.scale = Vector3.ONE * 0.009
+		o.aque_model.position.y = i - position.y + 5
 		add_child(o.aque_model)
 		nodes.append(o)
 
-func add_aqueduct_in_for_height(height, in_dir):
+func add_aqueduct_in_for_height(height, in_dir, other_obj, out_dir):
 	if nodes[height].out_bits == 0:
 		nodes[height].out_bits |= 64
 		nodes[height].water.add_destination_neighbor(water_node, 50, 0, 0)
 	nodes[height].in_bits |= 1 << in_dir
 	
-	var counterpart = get_neighbor_in_dir(HexHelper.get_opposite_hex_direction(in_dir))
+	nodes[height].water.add_source_neighbor(other_obj.nodes[height].water, 5, 1, 0)
 	
-	nodes[height].water.add_source_neighbor(counterpart.nodes[height].water, 5, 1, 0)
+	if other_obj.nodes[height].out_bits & 63 == 0:
+		other_obj.nodes[height].water.remove_destination_neighbor(water_node)
 	
-	if counterpart.nodes[height].out_bits & 63 == 0:
-		counterpart.nodes[height].water.remove_destination_neighbor(water_node)
-	
-	counterpart.nodes[height].out_bits |= 1 << HexHelper.get_opposite_hex_direction(in_dir)
-	counterpart.update_aqueduct_model()
+	other_obj.nodes[height].out_bits |= 1 << out_dir
+	other_obj.update_aqueduct_model()
 	update_aqueduct_model()
 
 func update_aqueduct_model():
 	
 	for i in range(len(nodes)):
+		if ((nodes[i].in_bits | nodes[i].out_bits) & 63) == 0:
+			continue
 		var data_obj
 		if not (nodes[i].in_bits | nodes[i].out_bits) in AqueductConstants.auqeduct_for_connection_bitset.keys():
 			data_obj = AqueductConstants.auqeduct_for_connection_bitset[1]
