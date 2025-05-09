@@ -65,7 +65,28 @@ var auqeduct_for_connection_bitset = {
 	45 : {"obj" : load("res://assets/models/NODE_4_X.obj"), "rot" : 240 },
 	46 : {"obj" : load("res://assets/models/NODE_4_FORK.obj"), "rot" : 240 },
 	47 : {"obj" : load("res://assets/models/NODE_5.obj"), "rot" : 240 },
-	48 : {"obj" : load("res://assets/models/NODE_2_TIGHT.obj"), "rot" : 240 },
+	48 : {"obj" : load("res://assets/models/NODE_2_TIGHT .obj"), "rot" : 240 },
+	
+	#49 missing like 7
+	
+	#50 missing like 13
+	
+	51 : {"obj" : load("res://assets/models/NODE_4_SIDE.obj"), "rot" : 180 },
+	
+	#52 like 13
+	
+	53 : {"obj" : load("res://assets/models/NODE_4_FORK.obj"), "rot" : 60 },
+	54 : {"obj" : load("res://assets/models/NODE_4_X.obj"), "rot" : 0 },
+	55 : {"obj" : load("res://assets/models/NODE_5.obj"), "rot" : 180 },
+	
+	#56 missing like 7 (i think)
+	
+	57 : {"obj" : load("res://assets/models/NODE_4_SIDE.obj"), "rot" : 120 },
+	58: {"obj" : load("res://assets/models/NODE_4_FORK.obj"), "rot" : 0 },
+	59 : {"obj" : load("res://assets/models/NODE_5.obj"), "rot" : 120 },
+	60 : {"obj" : load("res://assets/models/NODE_4_SIDE.obj"), "rot" : 60 },
+	61 : {"obj" : load("res://assets/models/NODE_5.obj"), "rot" : 60 },
+	62 : {"obj" : load("res://assets/models/NODE_5.obj"), "rot" : 0 },
 	63: {
 		"obj" : load("res://assets/models/NODE_6.obj"),
 		"rot" : 0
