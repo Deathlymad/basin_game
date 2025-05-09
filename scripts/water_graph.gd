@@ -2,7 +2,7 @@ extends Node
 
 class_name WaterGraph
 
-const max_node_content = 5
+const max_node_content = 10
 
 var nodes : Array[WaterNode]
 
@@ -18,6 +18,7 @@ class WaterConnection:
 	var dest : WaterNode
 	var flow : float = 1
 	var weight : float #factor that determines the maximum ratio between destination and source
+	var weight_offset : float #factor that determines the maximum offset between destination and source
 
 class WaterNode:
 	var pos : HexHelper.HexCoordinate
@@ -55,15 +56,13 @@ class WaterNode:
 		
 		#push logic
 		var flow_sum = 0
-		var flow_cap = 0
 		for dest in destinations:
-			var transfer = (volume - dest.dest.volume * dest.weight) / 2
+			var transfer = (volume - (dest.dest.volume * dest.weight - dest.weight_offset)) / 2
 			flow_sum += min(dest.flow, transfer)
-			flow_cap += dest.flow
-		var flow_usage = min(flow_sum, volume) / flow_cap
+		var flow_usage = min(flow_sum, volume) / flow_sum
 		var last_water_amt = water_amt
 		for dest in destinations:
-			var transfer = (volume - dest.dest.volume * dest.weight) / 2
+			var transfer = (volume -(dest.dest.volume * dest.weight - dest.weight_offset)) / 2
 			water_amt = max(0, water_amt)
 			dest.dest.water_amt += min(dest.flow * flow_usage, transfer, water_amt)
 			water_amt -= min(dest.flow * flow_usage, transfer, water_amt)
@@ -73,24 +72,28 @@ class WaterNode:
 				pollution_amt -= min(dest.flow * flow_usage, transfer, pollution_amt)
 		
 		if last_water_amt >= water_amt:
+			#evaporation
 			water_amt /= 1.1
+		if water_amt < 0.2:
+			water_amt = 0
 	
-	func add_source_neighbor(other : WaterNode, flow : float = 1, weight : float = 1):
+	func add_source_neighbor(other : WaterNode, flow : float = 1, weight : float = 1, weight_off : float = 1):
 		if destinations.find_custom(func (o):return o.dest == self and o.source == other) == -1:
 			var v = WaterConnection.new()
 			v.source = other 
 			v.dest = self
 			v.flow = flow
 			v.weight = weight
+			v.weight_offset = weight_off
 			destinations.append(v)
 			other.sources.append(v)
-	func add_destination_neighbor(other : WaterNode, flow : float = 1, weight : float = 1):
+	func add_destination_neighbor(other : WaterNode, flow : float = 1, weight : float = 1, weight_off : float = 1):
 		if destinations.find_custom(func (o): return o.source == self and o.dest == other) == -1:
 			var v = WaterConnection.new()
 			v.source = self
 			v.dest = other
 			v.flow = flow
-			v.weight = weight
+			v.weight_offset = weight_off
 			destinations.append(v)
 			other.sources.append(v)
 	func remove_source_neighbor(other : WaterNode):

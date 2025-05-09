@@ -33,7 +33,7 @@ func _ready():
 	get_parent().get_parent().graph.add_node(water_node)
 
 func _process(delta: float) -> void:
-	debug_sphere.scale = Vector3.ONE * water_node.water_amt
+	debug_sphere.scale = Vector3.ONE * water_node.water_amt / 2
 
 func get_hex_position():
 	return _hex_position
@@ -47,9 +47,9 @@ func add_neighbor(hex : Hexagon, propagate:bool = true):
 		neighbors.append(hex)
 		
 		if hex.height <= height:
-			water_node.add_destination_neighbor(hex.water_node, 0.5, 0.5)
+			water_node.add_destination_neighbor(hex.water_node, 0.5, 1, (height - hex.height))
 		if hex.height > height:
-			water_node.add_source_neighbor(hex.water_node, 0.5, 0.5)
+			water_node.add_source_neighbor(hex.water_node, 0.5, (hex.height - height))
 	else:
 		pass
 func remove_neighbor(hex : Hexagon, propagate:bool = true):
