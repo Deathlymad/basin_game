@@ -6,22 +6,34 @@ var height : float
 var _hex_position : HexHelper.HexCoordinate
 var neighbors : Array[Hexagon]
 
+var debug_sphere
 
-func _get_property_list():
-	return [
-		{
-			"name" : "Hex Coordinate", 
-			"type" : TYPE_VECTOR3, 
-			"usage":PROPERTY_USAGE_DEFAULT
-		}
-	]
-func _get(_prop):
-	return _hex_position.pos
-func _set(_prop, val):
-	if _hex_position:
-		_hex_position.pos = val
-		return true
-	return false
+var aqueduct_bits : int
+enum AQUEDUCT_DIRECTION {
+	NE =  1,
+	E  =  2,
+	SE =  4,
+	SW =  8,
+	W  = 16,
+	NW = 32
+}
+
+var water_node : WaterGraph.WaterNode = WaterGraph.WaterNode.new(_hex_position)
+
+
+func _ready():
+	var obj = MeshInstance3D.new()
+	obj.mesh = SphereMesh.new()
+	obj.material_override = StandardMaterial3D.new()
+	obj.material_override.albedo_color = Color(0, 64, 255)
+	obj.scale = Vector3.ZERO
+	add_child(obj)
+	debug_sphere = obj
+	
+	get_parent().get_parent().graph.add_node(water_node)
+
+func _process(delta: float) -> void:
+	debug_sphere.scale = Vector3.ONE * water_node.water_amt
 
 func get_hex_position():
 	return _hex_position
@@ -33,6 +45,11 @@ func add_neighbor(hex : Hexagon, propagate:bool = true):
 		if propagate:
 			hex.add_neighbor(self, false)
 		neighbors.append(hex)
+		
+		if hex.height <= height:
+			water_node.add_destination_neighbor(hex.water_node, 0.5, 0.5)
+		if hex.height > height:
+			water_node.add_source_neighbor(hex.water_node, 0.5, 0.5)
 	else:
 		pass
 func remove_neighbor(hex : Hexagon, propagate:bool = true):
@@ -40,6 +57,8 @@ func remove_neighbor(hex : Hexagon, propagate:bool = true):
 		if propagate:
 			hex.remove_neighbor(self, false)
 		neighbors.erase(hex)
+		#water_node.remove_neighbor(hex.water_node)
+	
 func get_neighbor_in_dir(dir : HexHelper.HexDirection):
 	for hex in neighbors:
 		if _hex_position.duplicate().minus(hex._hex_position).get_direction() == dir:

@@ -4,9 +4,9 @@
 [ext_resource type="Script" uid="uid://8uuaxeslu4tu" path="res://scenes/MainScene/basin.gd" id="2_spuhd"]
 [ext_resource type="Script" uid="uid://veklv46j4u2p" path="res://scenes/MainScene/Camera.gd" id="3_fupjk"]
 [ext_resource type="PackedScene" uid="uid://bohqdnkljiicp" path="res://scenes/HexGridScene/HexGridScene.tscn" id="3_y65c2"]
-[ext_resource type="Shader" path="res://scenes/MainScene/water_shader.gdshader" id="4_y65c2"]
+[ext_resource type="Shader" uid="uid://ci8ko54eis2pm" path="res://scenes/MainScene/water_shader.gdshader" id="4_y65c2"]
 [ext_resource type="Script" uid="uid://b5hdn0rcxxxon" path="res://scenes/MainScene/aqueduct_handler.gd" id="5_3cvap"]
-[ext_resource type="Script" uid="uid://fu082glnrdii" path="res://scenes/MainScene/omni_light_3d.gd" id="7_spiu4"]
+[ext_resource type="Script" path="res://scenes/MainScene/omni_light_3d.gd" id="7_spiu4"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ka3p"]
 albedo_color = Color(1, 0, 0, 1)
@@ -82,31 +82,29 @@ mesh = SubResource("PointMesh_1ka3p")
 script = ExtResource("2_spuhd")
 hexgrid_radius = 10
 
-[node name="NorthEastChunk" parent="Basin" instance=ExtResource("3_y65c2")]
-visible = false
+[node name="NorthEastChunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
 
-[node name="EastChunk" parent="Basin" instance=ExtResource("3_y65c2")]
-visible = false
+[node name="EastChunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
 direction = 1
 
-[node name="SouthEastChunk" parent="Basin" instance=ExtResource("3_y65c2")]
-visible = false
+[node name="SouthEastChunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
 direction = 2
 
-[node name="SouthWestCHunk" parent="Basin" instance=ExtResource("3_y65c2")]
-visible = false
+[node name="SouthWestCHunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
 direction = 3
 
-[node name="WestChunk" parent="Basin" instance=ExtResource("3_y65c2")]
-visible = false
+[node name="WestChunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
 direction = 4
 
-[node name="NorthWestChunk" parent="Basin" instance=ExtResource("3_y65c2")]
-visible = false
+[node name="NorthWestChunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
 direction = 5
 
 [node name="grid" type="MeshInstance3D" parent="Basin"]
 mesh = SubResource("ArrayMesh_spuhd")
+
+[node name="Timer" type="Timer" parent="Basin"]
+wait_time = 0.2
+autostart = true
 
 [node name="Node3D" type="Node3D" parent="."]
 script = ExtResource("3_fupjk")

@@ -40,6 +40,8 @@ func _ready():
 			hex.add_neighbor(hexagons[len(hexagons) - (size - i - 1) - 1])
 			hex.add_neighbor(hexagons[len(hexagons) - (size - i - 1) - 2])
 		hexagons.append(hex)
+		hex.position = hex.get_hex_position().to_carthesian() + Vector3.UP * hex.height
+		add_child(hex)
 		var step_pos = start_pos.duplicate()
 		start_pos.step_in_dir(direction)
 		step_pos.step_in_dir(next_dir)
@@ -54,6 +56,8 @@ func _ready():
 				hex.add_neighbor(hexagons[len(hexagons) - (size - i - 1) - 2])
 			last_minor_hex = hex
 			hexagons.append(hex)
+			hex.position = hex.get_hex_position().to_carthesian() + Vector3.UP * hex.height
+			add_child(hex)
 			step_pos.step_in_dir(next_dir)
 	
 	generate_mesh()
