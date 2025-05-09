@@ -442,3 +442,35 @@ func generate_mesh():
 	for c in $MeshInstance3D.get_children():
 		$MeshInstance3D.remove_child(c)
 	$MeshInstance3D.create_multiple_convex_collisions()
+	
+	var mdt = MeshDataTool.new()
+	mdt.create_from_surface($MeshInstance3D.mesh, 0)
+	for i in range(mdt.get_vertex_count()):
+		var vert = mdt.get_vertex(i)
+		mdt.set_vertex_normal(i, Vector3.ZERO)
+		
+	for i in range(mdt.get_face_count()):
+		var facevert1 = mdt.get_face_vertex(i,0)
+		var facevert2 = mdt.get_face_vertex(i,1)
+		var facevert3 = mdt.get_face_vertex(i,2)
+		
+		var vert1 = mdt.get_vertex(facevert1)
+		var vert2 = mdt.get_vertex(facevert2)
+		var vert3 = mdt.get_vertex(facevert3)
+		
+		var normal = Plane(vert1, vert2, vert3).normal
+		
+		mdt.set_vertex_normal(facevert1, mdt.get_vertex_normal(facevert1) + normal)		
+		mdt.set_vertex_normal(facevert2, mdt.get_vertex_normal(facevert2) + normal)
+		mdt.set_vertex_normal(facevert3, mdt.get_vertex_normal(facevert3) + normal)
+		
+	for i in range(mdt.get_vertex_count()):
+		var nor = mdt.get_vertex_normal(i)
+		mdt.set_vertex_normal(i, nor.normalized())
+	
+	mdt.commit_to_surface($MeshInstance3D.mesh)
+		
+		
+		
+			
+	

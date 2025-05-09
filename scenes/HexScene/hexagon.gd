@@ -74,5 +74,7 @@ func _update_mesh(uv_ratio : Vector2, uv_offset : Vector2, coord_offset : Vector
 		
 		uvs.append(new_uv)
 		
+	var normals : Array[Vector3] = []		
+		
 	
 	return [pts, idx, uvs]

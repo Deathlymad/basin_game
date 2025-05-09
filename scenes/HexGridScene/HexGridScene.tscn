@@ -1,13 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://bohqdnkljiicp"]
+[gd_scene load_steps=6 format=3 uid="uid://bohqdnkljiicp"]
 
 [ext_resource type="Script" uid="uid://d0rye4snk6dxf" path="res://scenes/HexGridScene/hex_grid_scene.gd" id="1_l445s"]
 [ext_resource type="Texture2D" uid="uid://c715pf3fcu7iy" path="res://assets/textures/basinfloor_alb.png" id="2_raw18"]
+[ext_resource type="Texture2D" uid="uid://ci5kc8j52mo5u" path="res://assets/textures/basinfloor_nor.png" id="3_8yreh"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8yreh"]
 albedo_texture = ExtResource("2_raw18")
-metallic_specular = 0.09
-roughness = 0.25
+metallic_specular = 0.0
 emission = Color(0, 0, 0.670588, 1)
+normal_texture = ExtResource("3_8yreh")
 ao_light_affect = 1.0
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_l445s"]
