@@ -6,6 +6,10 @@ var size : int
 
 var uv_ratio : Vector2
 
+
+var geometry_arrays
+
+
 func _calculate_global_uv_ratio():
 	
 	var extremes : Array[Vector3]
@@ -102,6 +106,7 @@ func add_hexagons_to_geometry(arrays):
 		arrays[Mesh.ARRAY_VERTEX].append_array(res[0])
 		arrays[Mesh.ARRAY_INDEX].append_array(res[1])
 		arrays[Mesh.ARRAY_TEX_UV].append_array(res[2])
+		arrays[Mesh.ARRAY_CUSTOM0].append_array(res[3])
 	
 func add_connectors_to_grid(arrays):
 	for h in hexagons:
@@ -207,9 +212,14 @@ func generate_chunk_border_in_dir(arrays, d:HexHelper.HexDirection):
 			
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 			if j > 0:
 				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 		elif dir == HexHelper.HexDirection.SE:
 			arrays[Mesh.ARRAY_INDEX].append(6 + off * 7)
 			arrays[Mesh.ARRAY_INDEX].append(1 + off * 7)
@@ -250,9 +260,14 @@ func generate_chunk_border_in_dir(arrays, d:HexHelper.HexDirection):
 			
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 			if j > 0:
 				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 		elif dir == HexHelper.HexDirection.SW:
 			arrays[Mesh.ARRAY_INDEX].append(1 + off * 7)
 			arrays[Mesh.ARRAY_INDEX].append(2 + off * 7)
@@ -293,9 +308,14 @@ func generate_chunk_border_in_dir(arrays, d:HexHelper.HexDirection):
 			
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 			if j > 0:
 				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 		elif dir == HexHelper.HexDirection.W:
 			arrays[Mesh.ARRAY_INDEX].append(2 + off * 7)
 			arrays[Mesh.ARRAY_INDEX].append(3 + off * 7)
@@ -336,9 +356,14 @@ func generate_chunk_border_in_dir(arrays, d:HexHelper.HexDirection):
 			
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 			if j > 0:
 				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 		elif dir == HexHelper.HexDirection.NE:
 			arrays[Mesh.ARRAY_INDEX].append(4 + off * 7)
 			arrays[Mesh.ARRAY_INDEX].append(5 + off * 7)
@@ -378,9 +403,14 @@ func generate_chunk_border_in_dir(arrays, d:HexHelper.HexDirection):
 			
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 			if j > 0:
 				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,-HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 		elif dir == HexHelper.HexDirection.NW:
 			arrays[Mesh.ARRAY_INDEX].append(3 + off * 7)
 			arrays[Mesh.ARRAY_INDEX].append(4 + off * 7)
@@ -420,27 +450,39 @@ func generate_chunk_border_in_dir(arrays, d:HexHelper.HexDirection):
 			
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
 			arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( 0, 0,HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+			arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 			if j > 0:
 				arrays[Mesh.ARRAY_TEX_UV].append((HexHelper.to_xz(pos.to_carthesian() + Vector3( HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, 0,-0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS)) + uv_offset) / uv_ratio + (uv_ratio/2))
-			
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
+				arrays[Mesh.ARRAY_CUSTOM0].append(0.0)
 		pos.step_in_dir(dir)
 
 func generate_mesh():
 	_calculate_global_uv_ratio()
-	var arrays = []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
-	arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
-	arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
+	if geometry_arrays == null:
+		geometry_arrays = []
+		geometry_arrays.resize(Mesh.ARRAY_MAX)
+		geometry_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
+		geometry_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
+		geometry_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
+		geometry_arrays[Mesh.ARRAY_NORMAL] = PackedVector3Array()
+		geometry_arrays[Mesh.ARRAY_CUSTOM0] = PackedFloat32Array()
 	
-	add_hexagons_to_geometry(arrays)
-	add_connectors_to_grid(arrays)
-	generate_triangles(arrays)
-	generate_chunk_border_in_dir(arrays, HexHelper.get_prev_hex_direction(direction))
+	add_hexagons_to_geometry(geometry_arrays)
+	add_connectors_to_grid(geometry_arrays)
+	generate_triangles(geometry_arrays)
+	generate_chunk_border_in_dir(geometry_arrays, HexHelper.get_prev_hex_direction(direction))
+	
+	for v in range(geometry_arrays[Mesh.ARRAY_VERTEX].size()):
+		geometry_arrays[Mesh.ARRAY_NORMAL].append(Vector3.ZERO)
+	
 	# Create the Mesh.
 	$MeshInstance3D.mesh = ArrayMesh.new()
-	$MeshInstance3D.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	
+	$MeshInstance3D.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, geometry_arrays, [], {}, Mesh.ARRAY_CUSTOM_RG_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT )
+	geometry_arrays[Mesh.ARRAY_NORMAL].clear()
 	for c in $MeshInstance3D.get_children():
 		$MeshInstance3D.remove_child(c)
 	$MeshInstance3D.create_multiple_convex_collisions()
@@ -462,17 +504,29 @@ func generate_mesh():
 		
 		var normal = Plane(vert1, vert2, vert3).normal
 		
-		mdt.set_vertex_normal(facevert1, mdt.get_vertex_normal(facevert1) + normal)		
+		mdt.set_vertex_normal(facevert1, mdt.get_vertex_normal(facevert1) + normal)
 		mdt.set_vertex_normal(facevert2, mdt.get_vertex_normal(facevert2) + normal)
 		mdt.set_vertex_normal(facevert3, mdt.get_vertex_normal(facevert3) + normal)
 		
 	for i in range(mdt.get_vertex_count()):
 		var nor = mdt.get_vertex_normal(i)
 		mdt.set_vertex_normal(i, nor.normalized())
-	
+		geometry_arrays[Mesh.ARRAY_NORMAL].append(nor)
+	$MeshInstance3D.mesh.clear_surfaces()
 	mdt.commit_to_surface($MeshInstance3D.mesh)
+	
+	$MeshInstance3D.mesh.clear_surfaces()
+	$MeshInstance3D.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, geometry_arrays, [], {}, Mesh.ARRAY_CUSTOM_RG_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT )
+	
+func update_mesh_water_data():
+	var i = 0
+	for h in hexagons:
+		for j in range(7):
+			geometry_arrays[Mesh.ARRAY_CUSTOM0].set(i * 14 + j * 2 + 0, h.water_node.water_amt / WaterGraph.max_node_content)
+			geometry_arrays[Mesh.ARRAY_CUSTOM0].set(i * 14 + j * 2 + 1, h.water_node.pollution_amt / WaterGraph.max_node_content)
 		
-		
-		
-			
+		i += 1
+	
+	$MeshInstance3D.mesh.clear_surfaces()
+	$MeshInstance3D.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, geometry_arrays, [], {}, Mesh.ARRAY_CUSTOM_RG_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT )
 	

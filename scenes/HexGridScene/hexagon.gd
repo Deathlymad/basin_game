@@ -27,15 +27,14 @@ enum AQUEDUCT_DIRECTION {
 
 var water_node : WaterGraph.WaterNode = WaterGraph.WaterNode.new(_hex_position)
 
-
 func _ready():
-	var obj = MeshInstance3D.new()
-	obj.mesh = SphereMesh.new()
-	obj.material_override = StandardMaterial3D.new()
-	obj.material_override.albedo_color = Color(0, 64, 255)
-	obj.scale = Vector3.ZERO
-	add_child(obj)
-	debug_sphere = obj
+	#var obj = MeshInstance3D.new()
+	#obj.mesh = SphereMesh.new()
+	#obj.material_override = StandardMaterial3D.new()
+	#obj.material_override.albedo_color = Color(0, 64, 255)
+	#obj.scale = Vector3.ZERO
+	#add_child(obj)
+	#debug_sphere = obj
 	
 	get_parent().get_parent().graph.add_node(water_node)
 	
@@ -82,8 +81,8 @@ func update_aqueduct_model():
 		nodes[i].aque_model.mesh = data_obj["obj"]
 		nodes[i].aque_model.rotation_degrees.y = data_obj["rot"]
 
-func _process(delta: float) -> void:
-	debug_sphere.scale = Vector3.ONE * water_node.water_amt / 2
+#func _process(delta: float) -> void:
+	#debug_sphere.scale = Vector3.ONE * water_node.water_amt / 2
 
 func get_hex_position():
 	return _hex_position
@@ -147,5 +146,9 @@ func _update_mesh(uv_ratio : Vector2, uv_offset : Vector2, coord_offset : Vector
 		
 	var normals : Array[Vector3] = []		
 		
+	var water_data = []
+	for point in pts:
+		water_data.append(0.0)
+		water_data.append(0.0)
 	
-	return [pts, idx, uvs]
+	return [pts, idx, uvs, water_data]

@@ -19,6 +19,9 @@ func _ready():
 
 func update_graph():
 	graph.update()
+	for c in get_children():
+		if c.is_in_group("chunk_group"):
+			c.update_mesh_water_data()
 
 func get_id_from_hex_coord(coord):
 	return  coord.pos.x * 1024 + 128 * 1024 + coord.pos.z + 128

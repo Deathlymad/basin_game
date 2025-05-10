@@ -148,7 +148,6 @@ script = ExtResource("7_spiu4")
 
 [node name="Node3D2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.06209, 0)
-visible = false
 script = ExtResource("7_spiu4")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="Node3D2"]

@@ -65,7 +65,7 @@ var auqeduct_for_connection_bitset = {
 	45 : {"obj" : load("res://assets/models/NODE_4_X.obj"), "rot" : 240 },
 	46 : {"obj" : load("res://assets/models/NODE_4_FORK.obj"), "rot" : 240 },
 	47 : {"obj" : load("res://assets/models/NODE_5.obj"), "rot" : 240 },
-	48 : {"obj" : load("res://assets/models/NODE_2_TIGHT .obj"), "rot" : 240 },
+	48 : {"obj" : load("res://assets/models/NODE_2_TIGHT.obj"), "rot" : 240 },
 	
 	#49 missing like 7
 	
