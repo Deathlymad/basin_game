@@ -14,6 +14,7 @@ class AqueductNode:
 	var out_bits : int
 	var aque_model : MeshInstance3D
 var nodes : Array[AqueductNode]
+var aque_foundation : MeshInstance3D
 
 enum AQUEDUCT_DIRECTION {
 	NE =  1,
@@ -67,11 +68,12 @@ func add_aqueduct_in_for_height(height, in_dir, other_obj, out_dir):
 	update_aqueduct_model()
 
 func update_aqueduct_model():
+	var max_height = 0
 	for i in range(len(nodes)):
 		if ((nodes[i].in_bits | nodes[i].out_bits) & 63) == 0:
 			continue
 		
-		print((nodes[i].in_bits | nodes[i].out_bits) & 63)
+		max_height = i
 		
 		var data_obj
 		if not ((nodes[i].in_bits | nodes[i].out_bits) & 63) in AqueductConstants.auqeduct_for_connection_bitset.keys():
@@ -80,6 +82,17 @@ func update_aqueduct_model():
 			data_obj = AqueductConstants.auqeduct_for_connection_bitset[(nodes[i].in_bits | nodes[i].out_bits) & 63]
 		nodes[i].aque_model.mesh = data_obj["obj"]
 		nodes[i].aque_model.rotation_degrees.y = data_obj["rot"]
+		
+	if aque_foundation == null:
+		aque_foundation = MeshInstance3D.new() #TODO instantiate correct model
+		aque_foundation.mesh = CylinderMesh.new()
+		add_child(aque_foundation)
+	aque_foundation.scale.x = 1
+	aque_foundation.scale.y = (max_height * 2 - height) / 2
+	aque_foundation.scale.z = 1
+	aque_foundation.position.y = (max_height * 2 - height) / 2
+	
+	
 
 #func _process(delta: float) -> void:
 	#debug_sphere.scale = Vector3.ONE * water_node.water_amt / 2
