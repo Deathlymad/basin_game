@@ -79,7 +79,7 @@ func place():
 		if t[1] != null:
 			var tmp = $"../Basin".get_hexagon_from_hex_coord(t[1])
 			if tmp != null:
-				tmp.add_aqueduct_in_for_height(5, t[2], $"../Basin".get_hexagon_from_hex_coord(t[3]), t[4])
+				tmp.add_aqueduct_in_for_height( 6, t[2], $"../Basin".get_hexagon_from_hex_coord(t[3]), t[4])
 			else:
 				pass
 	temp_aqueducts.clear()

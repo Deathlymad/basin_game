@@ -522,8 +522,8 @@ func update_mesh_water_data():
 	var i = 0
 	for h in hexagons:
 		for j in range(7):
-			geometry_arrays[Mesh.ARRAY_CUSTOM0].set(i * 14 + j * 2 + 0, h.water_node.water_amt / WaterGraph.max_node_content)
-			geometry_arrays[Mesh.ARRAY_CUSTOM0].set(i * 14 + j * 2 + 1, h.water_node.pollution_amt / WaterGraph.max_node_content)
+			geometry_arrays[Mesh.ARRAY_CUSTOM0].set(i * 14 + j * 2 + 0, h.water_node.water_amt / h.water_node.max_node_content)
+			geometry_arrays[Mesh.ARRAY_CUSTOM0].set(i * 14 + j * 2 + 1, h.water_node.pollution_amt / h.water_node.max_node_content)
 		
 		i += 1
 	

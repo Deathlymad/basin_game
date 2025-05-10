@@ -16,6 +16,8 @@ class AqueductNode:
 var nodes : Array[AqueductNode]
 var aque_foundation : MeshInstance3D
 
+var pump : MeshInstance3D
+
 enum AQUEDUCT_DIRECTION {
 	NE =  1,
 	E  =  2,
@@ -29,19 +31,25 @@ enum AQUEDUCT_DIRECTION {
 var water_node : WaterGraph.WaterNode = WaterGraph.WaterNode.new(_hex_position)
 
 func _ready():
-	#var obj = MeshInstance3D.new()
-	#obj.mesh = SphereMesh.new()
-	#obj.material_override = StandardMaterial3D.new()
-	#obj.material_override.albedo_color = Color(0, 64, 255)
-	#obj.scale = Vector3.ZERO
-	#add_child(obj)
-	#debug_sphere = obj
+	var obj = MeshInstance3D.new()
+	obj.mesh = SphereMesh.new()
+	obj.material_override = StandardMaterial3D.new()
+	obj.material_override.albedo_color = Color(0, 64, 255)
+	obj.scale = Vector3.ZERO
+	obj.position.y = 12
+	add_child(obj)
+	debug_sphere = obj
 	
+	water_node.pos = get_hex_position().duplicate()
+	water_node.pos.pos.y = height
 	get_parent().get_parent().graph.add_node(water_node)
 	
 	for i in range(10):
 		var o = AqueductNode.new()
-		o.water = WaterGraph.WaterNode.new(get_hex_position())
+		o.water = WaterGraph.WaterNode.new(get_hex_position().duplicate())
+		o.water.pos.pos.y = i * 2
+		o.water.max_node_content = 100
+		o.water.should_evaporate = false
 		o.in_bits = 0
 		o.out_bits = 0
 		o.aque_model = MeshInstance3D.new()
@@ -49,19 +57,53 @@ func _ready():
 		o.aque_model.position.y = i - position.y + 5
 		o.aque_model.material_override = StandardMaterial3D.new()
 		o.aque_model.material_override.albedo_texture = load("res://assets/textures/wood.png")
+		$/root/MainScene/Basin.graph.add_node(o.water)
 		add_child(o.aque_model)
 		nodes.append(o)
+
+func _process(delta: float) -> void:
+	debug_sphere.scale = Vector3.ONE * nodes[6].water.water_amt
+
+func spawn_pump():
+	if pump != null:
+		return
+	var max_height = 0
+	for i in range(len(nodes)):
+		if ((nodes[i].in_bits | nodes[i].out_bits) & 63) == 0:
+			continue
+		
+		max_height = i
+	
+	if max_height == 0:
+		return
+	
+	pump = MeshInstance3D.new()
+	pump.mesh = CylinderMesh.new()
+	add_child(pump)
+	pump.scale.x = 4
+	pump.scale.y = (max_height * 2 - height) / 2 + 2
+	pump.scale.z = 4
+	pump.position.y = (max_height * 2 - height) / 2 + 2
+	
+	var last = water_node
+	
+	for i in range(len(nodes)):
+		if ((nodes[i].in_bits | nodes[i].out_bits) & 63) == 0:
+			continue
+		last.add_destination_neighbor(nodes[i].water, 50, 0.1, 0)
+		last = nodes[i].water
+		
 
 func add_aqueduct_in_for_height(height, in_dir, other_obj, out_dir):
 	if nodes[height].out_bits == 0:
 		nodes[height].out_bits |= 64
-		nodes[height].water.add_destination_neighbor(water_node, 50, 0, 0)
+		nodes[height].water.add_destination_neighbor(water_node, 50, 0, 20)
 	nodes[height].in_bits |= 1 << in_dir
 	
-	nodes[height].water.add_source_neighbor(other_obj.nodes[height].water, 5, 1, 0)
+	nodes[height].water.add_source_neighbor(other_obj.nodes[height].water, 50, 0.5, 5)
 	
-	if other_obj.nodes[height].out_bits & 63 == 0:
-		other_obj.nodes[height].water.remove_destination_neighbor(water_node)
+	if (other_obj.nodes[height].out_bits & 63) == 0 and other_obj.nodes[height].out_bits & 64:
+		other_obj.nodes[height].water.remove_destination_neighbor(other_obj.water_node)
 	
 	other_obj.nodes[height].out_bits |= 1 << out_dir
 	other_obj.update_aqueduct_model()

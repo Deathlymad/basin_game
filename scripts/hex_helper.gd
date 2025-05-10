@@ -88,7 +88,7 @@ class HexCoordinate:
 		var s = round(-pos.x - pos.z)
 
 		var q_diff = abs(q - pos.x)
-		var r_diff = abs(r - pos.y)
+		var r_diff = abs(r - pos.z)
 		var s_diff = abs(s + pos.x + pos.z)
 
 		if q_diff > r_diff and q_diff > s_diff:

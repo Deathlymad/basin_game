@@ -70,6 +70,7 @@ func generate_neighborhood_graph():
 			break
 	
 	var lines = []
+	var colors = []
 	
 	var hs = []
 	for c in get_children():
@@ -82,14 +83,27 @@ func generate_neighborhood_graph():
 						hs.append(h.get_hex_position())
 					lines.append(h.get_hex_position().to_carthesian())
 					lines.append(n.get_hex_position().to_carthesian())
+					colors.append(Color(0,0,0))
+					colors.append(Color(0,0,0))
+	lines.clear()
+	colors.clear()
+	for n in graph.nodes:
+		for n1 in n.destinations:
+			if n1.source.pos.pos.y == 12 or n1.dest.pos.pos.y == 12:
+				lines.append(n1.source.pos.to_carthesian() + Vector3.UP * n1.source.pos.pos.y)
+				lines.append(n1.source.pos.to_carthesian() + (n1.dest.pos.to_carthesian() - n1.source.pos.to_carthesian()) * 2 / 3 + Vector3.UP * n1.dest.pos.pos.y)
+				colors.append(Color(32,32,128))
+				colors.append(Color(0,64,255))
 	
 	m.mesh.clear_surfaces()
 	
 	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
+	arrays[Mesh.ARRAY_COLOR] = PackedColorArray()
 	arrays[Mesh.ARRAY_VERTEX].append_array(lines)
-	m.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, arrays)
+	arrays[Mesh.ARRAY_COLOR].append_array(colors)
+	m.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, arrays, [], {}, Mesh.ArrayFormat.ARRAY_FORMAT_COLOR)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey:
