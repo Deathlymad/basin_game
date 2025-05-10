@@ -2,7 +2,6 @@ extends Node
 
 class_name WaterGraph
 
-const max_node_content = 10
 
 var nodes : Array[WaterNode]
 
@@ -21,6 +20,7 @@ class WaterConnection:
 	var weight_offset : float #factor that determines the maximum offset between destination and source
 
 class WaterNode:
+	var max_node_content = 10
 	var pos : HexHelper.HexCoordinate
 	var water_amt : float
 	var pollution_amt : float
@@ -86,8 +86,8 @@ class WaterNode:
 			v.flow = flow
 			v.weight = weight
 			v.weight_offset = weight_off
-			destinations.append(v)
-			other.sources.append(v)
+			sources.append(v)
+			other.destinations.append(v)
 	func add_destination_neighbor(other : WaterNode, flow : float = 1, weight : float = 1, weight_off : float = 1):
 		if destinations.find_custom(func (o): return o.source == self and o.dest == other) == -1:
 			var v = WaterConnection.new()
@@ -98,7 +98,15 @@ class WaterNode:
 			v.weight_offset = weight_off
 			destinations.append(v)
 			other.sources.append(v)
-	func remove_source_neighbor(other : WaterNode):
-		pass
-	func remove_destination_neighbor(other : WaterNode):
-		pass
+	func remove_source_neighbor(other : WaterNode, propagate : bool = true):
+		var search = destinations.find_custom(func (o): return o.dest == self and o.source == other)
+		if search != -1:
+			sources.remove_at(search)
+			if propagate:
+				other.remove_destination_neighbor(self, false)
+	func remove_destination_neighbor(other : WaterNode, propagate : bool = true):
+		var search = destinations.find_custom(func (o): return o.dest == other and o.source == self)
+		if search != -1:
+			destinations.remove_at(search)
+			if propagate:
+				other.remove_source_neighbor(self, false)

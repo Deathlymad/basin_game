@@ -34,7 +34,10 @@ func _input(evt : InputEvent):
 			
 			var hex = $Basin.get_hexagon_from_hex_coord(last_hex_coord)
 			if hex:
-				hex.water_node.add_water(1.5)
+				hex.water_node.add_water(5)
 				$CanvasLayer/WaterDisplay.text = str(hex.water_node.water_amt)
 		elif evt.is_action("debug_tick"):
-			$Basin.graph.update()
+			var hex = $Basin.get_hexagon_from_hex_coord(last_hex_coord)
+			if hex:
+				hex.spawn_pump()
+	
