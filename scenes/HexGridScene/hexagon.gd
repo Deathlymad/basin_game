@@ -48,7 +48,7 @@ func _ready():
 		var o = AqueductNode.new()
 		o.water = WaterGraph.WaterNode.new(get_hex_position().duplicate())
 		o.water.pos.pos.y = i * 2
-		o.water.max_node_content = 10
+		o.water.max_node_content = 50
 		o.water.should_evaporate = false
 		o.in_bits = 0
 		o.out_bits = 0
@@ -98,11 +98,19 @@ func spawn_pump():
 		
 
 func add_aqueduct_in_for_height(height, in_dir, other_obj, out_dir):
+	
+	var next_lower_water_node = water_node
+	
+	for i in range(height, 0, -1):
+		if nodes[i].out_bits & 63 > 0:
+			next_lower_water_node = nodes[i].water
+			break
+	
 	if nodes[height].out_bits == 0:
 		nodes[height].out_bits |= 64
 		var conn : WaterGraph.WaterConnection = WaterGraph.WaterRunoffConnection.new(height * 2 - self.height)
 		conn.source = nodes[height].water
-		conn.dest = water_node
+		conn.dest = next_lower_water_node
 		nodes[height].water.add_destination_neighbor(conn)
 	nodes[height].in_bits |= 1 << in_dir
 	
@@ -111,8 +119,21 @@ func add_aqueduct_in_for_height(height, in_dir, other_obj, out_dir):
 	conn.dest = nodes[height].water
 	nodes[height].water.add_source_neighbor(conn)
 	
-	if (other_obj.nodes[height].out_bits & 63) == 0 and other_obj.nodes[height].out_bits & 64:
-		other_obj.nodes[height].water.remove_destination_neighbor(other_obj.water_node)
+	for j in range(height, len(nodes)):
+		if (other_obj.nodes[j].out_bits & 63) == 0 and (other_obj.nodes[j].out_bits & 64) > 0:
+			
+			next_lower_water_node = other_obj.water_node
+			
+			for i in range(height, 0, -1):
+				if nodes[i].out_bits & 63 > 0:
+					next_lower_water_node = other_obj.nodes[i].water
+					break
+			other_obj.nodes[j].water.remove_destination_neighbor(next_lower_water_node)
+			
+			conn = WaterGraph.WaterRunoffConnection.new(j * 2 - height * 2)
+			conn.source = other_obj.nodes[j].water
+			conn.dest = nodes[height].water
+			other_obj.nodes[j].water.add_destination_neighbor(conn)
 	
 	other_obj.nodes[height].out_bits |= 1 << out_dir
 	other_obj.update_aqueduct_model()

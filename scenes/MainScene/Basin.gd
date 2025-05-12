@@ -18,7 +18,19 @@ func _ready():
 	$Timer.timeout.connect(update_graph)
 
 func update_graph():
+	var pos = [
+		HexHelper.HexCoordinate.new(1,0,0),
+		HexHelper.HexCoordinate.new(0,0,1),
+		HexHelper.HexCoordinate.new(-1,0,1),
+		HexHelper.HexCoordinate.new(1,0,-1),
+		HexHelper.HexCoordinate.new(-1,0,0),
+		HexHelper.HexCoordinate.new(0,0,-1),
+	]
+	for h in pos:
+		get_hexagon_from_hex_coord(h).water_node.content.water = 5
 	graph.update()
+	for h in pos:
+		get_hexagon_from_hex_coord(h).water_node.content.water = 5
 	for c in get_children():
 		if c.is_in_group("chunk_group"):
 			c.update_mesh_water_data()

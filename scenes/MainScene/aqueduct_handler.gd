@@ -21,6 +21,9 @@ func hex_raycast(pos : Vector2):
 		
 		return space_state.intersect_ray(query)
 
+func _ready():
+	ControlState.height_update_signal.connect(_on_height_update)
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.pressed == true and event.button_index == MOUSE_BUTTON_LEFT:
@@ -44,6 +47,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			elif not last_hex:
 				last_hex = p
 
+func _on_height_update():
+	for o in temp_aqueducts:
+		o[0].position = o[1].to_carthesian() + Vector3.UP * (HexHelper.get_height_position(o[1]))
+		o[0].scale.y = ControlState.aqueduct_height
+
 func update_aqueduct_structure(target : HexHelper.HexCoordinate):
 	for a in temp_aqueducts:
 		if a[0]:
@@ -53,18 +61,20 @@ func update_aqueduct_structure(target : HexHelper.HexCoordinate):
 	var path = $"../Basin".compute_path(start_pos, target)
 	for i in range(1, len(path)):
 		var p = aqueduct_scene.instantiate()
-		p.position = path[i - 1].to_carthesian() + Vector3.UP * path[i - 1].distance_to(HexHelper.HexCoordinate.new(0,0,0))
+		p.position = path[i - 1].to_carthesian() + Vector3.UP * (HexHelper.get_height_position(path[i - 1]))
+		p.scale.y = ControlState.aqueduct_height
 		var dir = path[i - 1].duplicate().minus(path[i]).get_direction()
 		if dir == null:
 			dir = HexHelper.get_opposite_hex_direction(path[i].duplicate().minus(path[i - 1]).get_direction())
 		if dir != null:
 			p.rotation_degrees.y = HexHelper.get_opposite_hex_direction(dir) * 60 - 60
-			temp_aqueducts.append([p, null])
+			temp_aqueducts.append([p, path[i - 1]])
 			add_child(p)
 		else:
 			pass
 		p = aqueduct_scene.instantiate()
-		p.position = path[i].to_carthesian() + Vector3.UP * path[i].distance_to(HexHelper.HexCoordinate.new(0,0,0))
+		p.position = path[i].to_carthesian() + Vector3.UP * (HexHelper.get_height_position(path[i]))
+		p.scale.y = ControlState.aqueduct_height
 		if dir != null:
 			p.rotation_degrees.y = dir * 60 - 60
 			temp_aqueducts.append([p, path[i], dir, path[i - 1], HexHelper.get_opposite_hex_direction(dir)])
@@ -76,10 +86,10 @@ func place():
 	for t in temp_aqueducts:
 		remove_child(t[0])
 		t[0].queue_free()
-		if t[1] != null:
+		if len(t) > 2:
 			var tmp = $"../Basin".get_hexagon_from_hex_coord(t[1])
 			if tmp != null:
-				tmp.add_aqueduct_in_for_height( 6, t[2], $"../Basin".get_hexagon_from_hex_coord(t[3]), t[4])
+				tmp.add_aqueduct_in_for_height( ControlState.aqueduct_height, t[2], $"../Basin".get_hexagon_from_hex_coord(t[3]), t[4])
 			else:
 				pass
 	temp_aqueducts.clear()

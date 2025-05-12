@@ -26,6 +26,9 @@ static func get_opposite_hex_direction(dir : HexDirection):
 static func to_xz(v : Vector3) -> Vector2:
 	return Vector2(v.x, v.z)
 
+static func get_height_position(coord : HexCoordinate):
+	return coord.distance_to(HexHelper.HexCoordinate.new(0,0,0))
+
 class HexCoordinate:
 	var pos : Vector3
 	

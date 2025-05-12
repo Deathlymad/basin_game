@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://dxwhq4pw7hlfh"]
+[gd_scene load_steps=22 format=3 uid="uid://dxwhq4pw7hlfh"]
 
 [ext_resource type="Script" uid="uid://ty5oyx2coyh2" path="res://scenes/MainScene/debug_mouse.gd" id="1_1ka3p"]
 [ext_resource type="Script" uid="uid://doggmypstepx0" path="res://scenes/MainScene/Basin.gd" id="2_spuhd"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bohqdnkljiicp" path="res://scenes/HexGridScene/HexGridScene.tscn" id="3_y65c2"]
 [ext_resource type="Shader" uid="uid://ci8ko54eis2pm" path="res://scenes/MainScene/water_shader.gdshader" id="4_y65c2"]
 [ext_resource type="Script" uid="uid://b5hdn0rcxxxon" path="res://scenes/MainScene/aqueduct_handler.gd" id="5_3cvap"]
+[ext_resource type="Script" uid="uid://cgxgq6je0x3ek" path="res://scenes/MainScene/AqueductHeightLabel.gd" id="5_73lv8"]
 [ext_resource type="Script" path="res://scenes/MainScene/omni_light_3d.gd" id="7_spiu4"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ka3p"]
@@ -83,20 +84,26 @@ script = ExtResource("2_spuhd")
 hexgrid_radius = 10
 
 [node name="NorthEastChunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
+visible = false
 
 [node name="EastChunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
+visible = false
 direction = 1
 
 [node name="SouthEastChunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
+visible = false
 direction = 2
 
 [node name="SouthWestCHunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
+visible = false
 direction = 3
 
 [node name="WestChunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
+visible = false
 direction = 4
 
 [node name="NorthWestChunk" parent="Basin" groups=["chunk_group"] instance=ExtResource("3_y65c2")]
+visible = false
 direction = 5
 
 [node name="grid" type="MeshInstance3D" parent="Basin"]
@@ -130,6 +137,13 @@ offset_left = 2.0
 offset_top = 75.0
 offset_right = 42.0
 offset_bottom = 115.0
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+offset_top = 132.0
+offset_right = 40.0
+offset_bottom = 155.0
+text = "5"
+script = ExtResource("5_73lv8")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
@@ -189,3 +203,7 @@ sky_mode = 2
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_y65c2")
+
+[node name="Decals" type="Node3D" parent="."]
+
+[node name="MultiMeshInstance3D" type="MultiMeshInstance3D" parent="Decals"]
