@@ -89,7 +89,7 @@ func generate_neighborhood_graph():
 	colors.clear()
 	for n in graph.nodes:
 		for n1 in n.destinations:
-			if n1.source.pos.pos.y == 12 or n1.dest.pos.pos.y == 12:
+			#if n1.source.pos.pos.y == 12 or n1.dest.pos.pos.y == 12:
 				lines.append(n1.source.pos.to_carthesian() + Vector3.UP * n1.source.pos.pos.y)
 				lines.append(n1.source.pos.to_carthesian() + (n1.dest.pos.to_carthesian() - n1.source.pos.to_carthesian()) * 2 / 3 + Vector3.UP * n1.dest.pos.pos.y)
 				colors.append(Color(32,32,128))

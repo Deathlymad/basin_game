@@ -19,16 +19,16 @@ func _calculate_global_uv_ratio():
 	extremes.append(HexHelper.HexCoordinate.new(0,0,-size).to_carthesian())
 	extremes.append(HexHelper.HexCoordinate.new(-size,0,0).to_carthesian())
 	
-	var min = Vector2.ZERO
-	var max = Vector2.ZERO
+	var mn = Vector2.ZERO
+	var mx = Vector2.ZERO
 	
 	for pt in extremes:
-		min.x = min(pt.x, min.x)
-		min.y = min(pt.z, min.y)
-		max.x = max(pt.x, max.y)
-		max.y = max(pt.z, max.y)
+		mn.x = min(pt.x, mn.x)
+		mn.y = min(pt.z, mn.y)
+		mx.x = max(pt.x, mx.y)
+		mx.y = max(pt.z, mx.y)
 	
-	uv_ratio = max - min + Vector2(12, 12)
+	uv_ratio = mx - mn + Vector2(12, 12)
 	
 func _ready():
 	hexagons = []
@@ -522,8 +522,8 @@ func update_mesh_water_data():
 	var i = 0
 	for h in hexagons:
 		for j in range(7):
-			geometry_arrays[Mesh.ARRAY_CUSTOM0].set(i * 14 + j * 2 + 0, h.water_node.water_amt / h.water_node.max_node_content)
-			geometry_arrays[Mesh.ARRAY_CUSTOM0].set(i * 14 + j * 2 + 1, h.water_node.pollution_amt / h.water_node.max_node_content)
+			geometry_arrays[Mesh.ARRAY_CUSTOM0].set(i * 14 + j * 2 + 0, h.water_node.content.water / h.water_node.max_node_content)
+			geometry_arrays[Mesh.ARRAY_CUSTOM0].set(i * 14 + j * 2 + 1, h.water_node.content.volume_of("POLLUTION") / h.water_node.max_node_content)
 		
 		i += 1
 	

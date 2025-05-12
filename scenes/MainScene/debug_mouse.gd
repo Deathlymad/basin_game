@@ -23,8 +23,8 @@ func _input(evt : InputEvent):
 			$CanvasLayer/PositionDisplay.text = coord.to_string()
 			var hex = $Basin.get_hexagon_from_hex_coord(coord)
 			if hex:
-				$CanvasLayer/WaterDisplay.text = str(hex.water_node.water_amt)
-				$CanvasLayer/PollutionDisplay.text = str(hex.water_node.pollution_amt)
+				$CanvasLayer/WaterDisplay.text = str(hex.water_node.content.water)
+				$CanvasLayer/PollutionDisplay.text = str(hex.water_node.content.additions)
 			else:
 				$CanvasLayer/WaterDisplay.text = "-"
 				$CanvasLayer/PollutionDisplay.text = "-"
@@ -35,7 +35,7 @@ func _input(evt : InputEvent):
 			var hex = $Basin.get_hexagon_from_hex_coord(last_hex_coord)
 			if hex:
 				hex.water_node.add_water(5)
-				$CanvasLayer/WaterDisplay.text = str(hex.water_node.water_amt)
+				$CanvasLayer/WaterDisplay.text = str(hex.water_node.content.water)
 		elif evt.is_action("debug_tick"):
 			var hex = $Basin.get_hexagon_from_hex_coord(last_hex_coord)
 			if hex:

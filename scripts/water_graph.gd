@@ -12,92 +12,175 @@ func update():
 	for n in nodes:
 		n.update()
 
+class FluidMix:
+	var water : float
+	var additions : Dictionary[String, float] #TODO make this a sort of enum
+	
+	var volume : float : 
+		get():
+			var s = water
+			for v in additions.values():
+				s += v
+			return s
+	
+	func _init(water : float = 0.0, adds : Dictionary[String, float] = {}):
+		self.water = water
+		additions = adds
+	
+	func volume_of(a:String):
+		if a in additions.keys():
+			return additions[a]
+		return 0
+	
+	func subset(array:Array[String]):
+		var dict : Dictionary[String, float] = {}
+		
+		for k in additions.keys():
+			if k in array:
+				dict[k] = additions[k]
+		return FluidMix.new(water, dict)
+	
+	func scalar(val : float):
+		var dict : Dictionary[String, float] = {}
+		
+		for k in additions.keys():
+			dict[k] = additions[k] * val
+		
+		return FluidMix.new(water * val, dict)
+	
+	#inline add
+	func merge(other : FluidMix):
+		water += other.water
+		for k in other.additions.keys():
+			if not k in additions.keys():
+				additions[k] = 0
+			
+			additions[k] += other.additions[k]
+	
+	#copy difference
+	func minus(other : FluidMix):
+		
+		var dict : Dictionary[String, float] = {}
+		
+		for k in additions.keys():
+			dict[k] = additions[k]
+			if k in other.additions.keys():
+				dict[k] -= other.additions[k]
+		
+		return FluidMix.new(water - other.water, dict)
+	
+#TODO order this structure
+
 class WaterConnection:
 	var source : WaterNode
 	var dest : WaterNode
-	var flow : float = 1
-	var weight : float #factor that determines the maximum ratio between destination and source
-	var weight_offset : float #factor that determines the maximum offset between destination and source
+	var max_flow : float = 10
+	
+	func get_max_flow():
+		return min(max_flow, max(0, (source.content.volume - dest.content.volume) / 1.2))
+	
+	func get_flow_amount(flow:float):
+		return source.content.scalar(min(flow, get_max_flow() / max_flow))
+	
+	func get_effective_dest_volume():
+		return dest.content.volume
+
+class FilteredWaterConnection extends WaterConnection:
+	#whitelist filter
+	var allowed_fluids : Array[String] = []
+	
+	func get_max_flow():
+		#the following restrictions apply:
+		# - no more volume can flow than the connection permits
+		# - no more volume can flow than exist in the node
+		# - negative flow is illegal
+		# - the flow is the delta of the source volume and the destination volume
+		return min(max_flow, source.volume_of(allowed_fluids), max(0, (source.volume - dest.volume_of(allowed_fluids)) / 2))
+	func get_flow_amount(flow:float):
+		return source.content.subset(allowed_fluids).scalar(min(flow, get_max_flow() / max_flow))
+class WaterPumpConnection extends FilteredWaterConnection:
+	func get_max_flow():
+		#pump desinations accept as much water as they can absorb
+		return (dest.max_node_content - dest.content.volume)
+class WaterRunoffConnection extends WaterConnection:
+	var height_difference :float = 0
+	
+	func _init(difference : float):
+		height_difference = difference
+	
+	func get_max_flow():
+		return min(max_flow, max(0, (source.content.volume - (dest.content.volume - height_difference)) / 2))
+	
+	func get_effective_dest_volume():
+		return max(0, dest.content.volume - height_difference)
 
 class WaterNode:
 	var max_node_content = 10
 	var pos : HexHelper.HexCoordinate
-	var water_amt : float
-	var pollution_amt : float
+	var content : FluidMix
 	var should_evaporate : bool = true
-	var volume : float :
-		get():
-			return water_amt + pollution_amt
 	
 	var sources : Array[WaterConnection]
 	var destinations : Array[WaterConnection]
 	
 	func _init(position : HexHelper.HexCoordinate):
 		pos = position
-		water_amt = 0
-		pollution_amt = 0
+		content = FluidMix.new()
 		sources = []
 		destinations = []
 	
 	func add_water(amt : float):
-		if volume + amt < max_node_content:
-			water_amt += amt
+		if content.volume + amt < max_node_content:
+			content.water += amt
 		else:
-			water_amt = max_node_content
-	func add_pollution(amt : float):
-		if volume + amt < max_node_content:
-			water_amt += amt
-		else:
-			water_amt = max_node_content
+			content.water = max_node_content
 	
 	func update():
 		
-		if water_amt == 0:
+		if content.water == 0:
 			return
 		
 		#push logic
 		var flow_sum = 0
+		var min_neighbor = 0
 		for dest in destinations:
-			var transfer = (volume - (dest.dest.volume * dest.weight - dest.weight_offset)) / 2
-			flow_sum += min(dest.flow, transfer)
-		var flow_usage = min(flow_sum, volume) / flow_sum
-		var last_water_amt = water_amt
-		for dest in destinations:
-			var transfer = (volume -(dest.dest.volume * dest.weight - dest.weight_offset)) / 2
-			water_amt = max(0, water_amt)
-			dest.dest.water_amt += min(dest.flow * flow_usage, transfer, water_amt)
-			water_amt -= min(dest.flow * flow_usage, transfer, water_amt)
-			pollution_amt = max(0, pollution_amt)
-			if pollution_amt > 0:
-				dest.dest.pollution_amt += min(dest.flow * flow_usage, transfer, pollution_amt)
-				pollution_amt -= min(dest.flow * flow_usage, transfer, pollution_amt)
+			flow_sum += dest.get_max_flow()
+			min_neighbor = min(min_neighbor, dest.get_effective_dest_volume())
+		flow_sum = min(flow_sum, content.volume)
+		if flow_sum > 0:
+			var flow_usage = min(1.0, (content.volume - min_neighbor) / flow_sum)
+			
+			for dest in destinations:
+				var transfer = dest.get_flow_amount(flow_usage)
+				content = content.minus(transfer)
+				dest.dest.content.merge(transfer)
 		
-		if last_water_amt >= water_amt and should_evaporate:
-			#evaporation
-			water_amt /= 1.1
-		if water_amt < 0.2:
-			water_amt = 0
+			if flow_usage == 1.0 and should_evaporate:
+				#evaporation
+				content.water /= 1.1
+		if content.water < 0.1:
+			content.water = 0
 	
-	func add_source_neighbor(other : WaterNode, flow : float = 1, weight : float = 1, weight_off : float = 1):
-		if destinations.find_custom(func (o):return o.dest == self and o.source == other) == -1:
-			var v = WaterConnection.new()
-			v.source = other 
-			v.dest = self
-			v.flow = flow
-			v.weight = weight
-			v.weight_offset = weight_off
-			sources.append(v)
-			other.destinations.append(v)
-	func add_destination_neighbor(other : WaterNode, flow : float = 1, weight : float = 1, weight_off : float = 1):
-		if destinations.find_custom(func (o): return o.source == self and o.dest == other) == -1:
-			var v = WaterConnection.new()
-			v.source = self
-			v.dest = other
-			v.flow = flow
-			v.weight = weight
-			v.weight_offset = weight_off
-			destinations.append(v)
-			other.sources.append(v)
+	func add_source_neighbor(connection : WaterConnection, propagate : bool = true):
+		if connection.dest != self:
+			print("illegal source connection addition")
+			return
+		if sources.find_custom(func (o):return o.source == connection.source and o.get_class() == connection.get_class()) == -1:
+			sources.append(connection)
+			if propagate:
+				connection.source.add_destination_neighbor(connection, false)
+		else:
+			print("duplicate connection")
+	func add_destination_neighbor(connection : WaterConnection, propagate : bool = true):
+		if connection.source != self:
+			print("illegal destination connection addition")
+			return
+		if destinations.find_custom(func (o): return o.dest == connection.dest and o.get_class() == connection.get_class()) == -1:
+			destinations.append(connection)
+			if propagate:
+				connection.dest.add_source_neighbor(connection, false)
+		else:
+			print("duplicate connection")
 	func remove_source_neighbor(other : WaterNode, propagate : bool = true):
 		var search = destinations.find_custom(func (o): return o.dest == self and o.source == other)
 		if search != -1:

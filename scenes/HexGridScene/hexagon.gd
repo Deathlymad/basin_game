@@ -36,7 +36,7 @@ func _ready():
 	obj.material_override = StandardMaterial3D.new()
 	obj.material_override.albedo_color = Color(0, 64, 255)
 	obj.scale = Vector3.ZERO
-	obj.position.y = 12
+	obj.position.y = 12 - position.y
 	add_child(obj)
 	debug_sphere = obj
 	
@@ -48,7 +48,7 @@ func _ready():
 		var o = AqueductNode.new()
 		o.water = WaterGraph.WaterNode.new(get_hex_position().duplicate())
 		o.water.pos.pos.y = i * 2
-		o.water.max_node_content = 100
+		o.water.max_node_content = 10
 		o.water.should_evaporate = false
 		o.in_bits = 0
 		o.out_bits = 0
@@ -62,7 +62,7 @@ func _ready():
 		nodes.append(o)
 
 func _process(delta: float) -> void:
-	debug_sphere.scale = Vector3.ONE * nodes[6].water.water_amt
+	debug_sphere.scale = Vector3.ONE * nodes[6].water.content.water
 
 func spawn_pump():
 	if pump != null:
@@ -90,17 +90,26 @@ func spawn_pump():
 	for i in range(len(nodes)):
 		if ((nodes[i].in_bits | nodes[i].out_bits) & 63) == 0:
 			continue
-		last.add_destination_neighbor(nodes[i].water, 50, 0.1, 0)
+		var conn : WaterGraph.WaterConnection = WaterGraph.WaterPumpConnection.new()
+		conn.source = last
+		conn.dest = nodes[i].water
+		last.add_destination_neighbor(conn)
 		last = nodes[i].water
 		
 
 func add_aqueduct_in_for_height(height, in_dir, other_obj, out_dir):
 	if nodes[height].out_bits == 0:
 		nodes[height].out_bits |= 64
-		nodes[height].water.add_destination_neighbor(water_node, 50, 0, 20)
+		var conn : WaterGraph.WaterConnection = WaterGraph.WaterRunoffConnection.new(height * 2 - self.height)
+		conn.source = nodes[height].water
+		conn.dest = water_node
+		nodes[height].water.add_destination_neighbor(conn)
 	nodes[height].in_bits |= 1 << in_dir
 	
-	nodes[height].water.add_source_neighbor(other_obj.nodes[height].water, 50, 0.5, 5)
+	var conn : WaterGraph.WaterConnection = WaterGraph.WaterConnection.new()
+	conn.source = other_obj.nodes[height].water
+	conn.dest = nodes[height].water
+	nodes[height].water.add_source_neighbor(conn)
 	
 	if (other_obj.nodes[height].out_bits & 63) == 0 and other_obj.nodes[height].out_bits & 64:
 		other_obj.nodes[height].water.remove_destination_neighbor(other_obj.water_node)
@@ -151,9 +160,15 @@ func add_neighbor(hex : Hexagon, propagate:bool = true):
 		neighbors.append(hex)
 		
 		if hex.height <= height:
-			water_node.add_destination_neighbor(hex.water_node, 0.5, 1, (height - hex.height))
+			var conn : WaterGraph.WaterConnection = WaterGraph.WaterRunoffConnection.new((height - hex.height))
+			conn.source = water_node
+			conn.dest = hex.water_node
+			water_node.add_destination_neighbor(conn)
 		if hex.height > height:
-			water_node.add_source_neighbor(hex.water_node, 0.5, (hex.height - height))
+			var conn : WaterGraph.WaterConnection = WaterGraph.WaterRunoffConnection.new(hex.height - height)
+			conn.source = hex.water_node
+			conn.dest = water_node
+			water_node.add_source_neighbor(conn)
 	else:
 		pass
 func remove_neighbor(hex : Hexagon, propagate:bool = true):
