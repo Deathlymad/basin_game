@@ -2,9 +2,25 @@ extends Node3D
 
 class_name Hexagon
 
-var height : float
-var _hex_position : HexHelper.HexCoordinate
+var tile_height : float:
+	get:
+		return hex_position.pos.y
+var hex_position : HexHelper.HexCoordinate:
+	get:
+		if hex_position == null:
+			return null
+		return hex_position.duplicate()
+	set(value):
+		if hex_position != null:
+			HexagonLookup[hex_position.pos] = null
+		HexagonLookup[value.pos] = self
+		hex_position = value
+static var HexagonLookup : Dictionary[Vector3, Hexagon]
 var neighbors : Array[Hexagon]
+
+var vertex_count = 37
+var outside_indices = []
+var index_offset = -1
 
 var debug_sphere
 
@@ -18,6 +34,7 @@ var aque_foundation : MeshInstance3D
 
 var pump : MeshInstance3D
 
+
 enum AQUEDUCT_DIRECTION {
 	NE =  1,
 	E  =  2,
@@ -28,7 +45,13 @@ enum AQUEDUCT_DIRECTION {
 	GROUND = 64
 }
 
-var water_node : WaterGraph.WaterNode = WaterGraph.WaterNode.new(_hex_position)
+var water_node : WaterGraph.WaterNode
+var last_water = 0.0
+var last_pol = 0.0
+
+func _init(pos : HexHelper.HexCoordinate):
+	hex_position = pos
+	water_node = WaterGraph.WaterNode.new(pos)
 
 func _ready():
 	var obj = MeshInstance3D.new()
@@ -40,13 +63,13 @@ func _ready():
 	add_child(obj)
 	debug_sphere = obj
 	
-	water_node.pos = get_hex_position().duplicate()
-	water_node.pos.pos.y = height
+	water_node.pos = hex_position
+	water_node.pos.pos.y = hex_position.pos.y
 	get_parent().get_parent().graph.add_node(water_node)
 	
 	for i in range(10):
 		var o = AqueductNode.new()
-		o.water = WaterGraph.WaterNode.new(get_hex_position().duplicate())
+		o.water = WaterGraph.WaterNode.new(hex_position)
 		o.water.pos.pos.y = i * 2
 		o.water.max_node_content = 50
 		o.water.should_evaporate = false
@@ -61,7 +84,7 @@ func _ready():
 		add_child(o.aque_model)
 		nodes.append(o)
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	debug_sphere.scale = Vector3.ONE * nodes[6].water.content.water
 
 func spawn_pump():
@@ -81,9 +104,9 @@ func spawn_pump():
 	pump.mesh = CylinderMesh.new()
 	add_child(pump)
 	pump.scale.x = 4
-	pump.scale.y = (max_height * 2 - height) / 2 + 2
+	pump.scale.y = (max_height * 2 - tile_height) / 2 + 2
 	pump.scale.z = 4
-	pump.position.y = (max_height * 2 - height) / 2 + 2
+	pump.position.y = (max_height * 2 - tile_height) / 2 + 2
 	
 	var last = water_node
 	
@@ -95,8 +118,7 @@ func spawn_pump():
 		conn.dest = nodes[i].water
 		last.add_destination_neighbor(conn)
 		last = nodes[i].water
-		
-
+	
 func add_aqueduct_in_for_height(height, in_dir, other_obj, out_dir):
 	
 	var next_lower_water_node = water_node
@@ -105,16 +127,16 @@ func add_aqueduct_in_for_height(height, in_dir, other_obj, out_dir):
 		if nodes[i].out_bits & 63 > 0:
 			next_lower_water_node = nodes[i].water
 			break
-	
+	var conn : WaterGraph.WaterConnection
 	if nodes[height].out_bits == 0:
 		nodes[height].out_bits |= 64
-		var conn : WaterGraph.WaterConnection = WaterGraph.WaterRunoffConnection.new(height * 2 - self.height)
+		conn = WaterGraph.WaterRunoffConnection.new(height * 2 - tile_height)
 		conn.source = nodes[height].water
 		conn.dest = next_lower_water_node
 		nodes[height].water.add_destination_neighbor(conn)
 	nodes[height].in_bits |= 1 << in_dir
 	
-	var conn : WaterGraph.WaterConnection = WaterGraph.WaterConnection.new()
+	conn = WaterGraph.WaterConnection.new()
 	conn.source = other_obj.nodes[height].water
 	conn.dest = nodes[height].water
 	nodes[height].water.add_source_neighbor(conn)
@@ -160,19 +182,14 @@ func update_aqueduct_model():
 		aque_foundation.mesh = CylinderMesh.new()
 		add_child(aque_foundation)
 	aque_foundation.scale.x = 1
-	aque_foundation.scale.y = (max_height * 2 - height) / 2
+	aque_foundation.scale.y = (max_height * 2 - tile_height) / 2
 	aque_foundation.scale.z = 1
-	aque_foundation.position.y = (max_height * 2 - height) / 2
+	aque_foundation.position.y = (max_height * 2 - tile_height) / 2
 	
 	
 
 #func _process(delta: float) -> void:
 	#debug_sphere.scale = Vector3.ONE * water_node.water_amt / 2
-
-func get_hex_position():
-	return _hex_position
-func set_hex_position(p):
-	_hex_position = p
 
 func add_neighbor(hex : Hexagon, propagate:bool = true):
 	if not hex in neighbors:
@@ -180,13 +197,13 @@ func add_neighbor(hex : Hexagon, propagate:bool = true):
 			hex.add_neighbor(self, false)
 		neighbors.append(hex)
 		
-		if hex.height <= height:
-			var conn : WaterGraph.WaterConnection = WaterGraph.WaterRunoffConnection.new((height - hex.height))
+		if hex.tile_height <= tile_height:
+			var conn : WaterGraph.WaterConnection = WaterGraph.WaterRunoffConnection.new((tile_height - hex.tile_height))
 			conn.source = water_node
 			conn.dest = hex.water_node
 			water_node.add_destination_neighbor(conn)
-		if hex.height > height:
-			var conn : WaterGraph.WaterConnection = WaterGraph.WaterRunoffConnection.new(hex.height - height)
+		if hex.tile_height > tile_height:
+			var conn : WaterGraph.WaterConnection = WaterGraph.WaterRunoffConnection.new(hex.tile_height - tile_height)
 			conn.source = hex.water_node
 			conn.dest = water_node
 			water_node.add_source_neighbor(conn)
@@ -201,45 +218,132 @@ func remove_neighbor(hex : Hexagon, propagate:bool = true):
 	
 func get_neighbor_in_dir(dir : HexHelper.HexDirection):
 	for hex in neighbors:
-		if _hex_position.duplicate().minus(hex._hex_position).get_direction() == dir:
+		var d = hex.hex_position.minus(hex_position).get_direction()
+		
+		if d == dir:
 			return hex
 
-func _update_mesh(uv_ratio : Vector2, uv_offset : Vector2, coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):
+func _generate_mesh(uv_ratio : Vector2, uv_offset : Vector2, coord_offset : Vector3 = Vector3.ZERO, idx_offset : int = 0):
 	var pts : Array[Vector3] = []
+	var uvs : Array[Vector2] = []
+	var water_data : Array[float] = []
 	
-	pts.append(coord_offset + Vector3.UP * height) #Center
+	index_offset = idx_offset
 	
-	pts.append(coord_offset + Vector3(  HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, height,  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-	pts.append(coord_offset + Vector3(  HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, height, -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-	pts.append(coord_offset + Vector3(                       0, height,       -HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-	pts.append(coord_offset + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, height, -0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-	pts.append(coord_offset + Vector3( -HexHelper.INNER_RADIUS * HexHelper.SOLID_RADIUS, height,  0.5 * HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
-	pts.append(coord_offset + Vector3(                       0, height,        HexHelper.OUTER_RADIUS * HexHelper.SOLID_RADIUS))
+	pts.append(Vector3.ZERO) #Center
+	
+	
+	#inner vertices
+	#starting from top-right/NE
+	pts.append(Vector3(  HexHelper.INNER_RADIUS       , 0,  0.5  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS       , 0,                              0) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS       , 0, -0.5  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS *  0.5, 0, -0.75 * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3(                              0, 0,        -HexHelper.OUTER_RADIUS) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS * -0.5, 0, -0.75 * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3( -HexHelper.INNER_RADIUS       , 0, -0.5  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3( -HexHelper.INNER_RADIUS       , 0,                              0) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3( -HexHelper.INNER_RADIUS       , 0,  0.5  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS * -0.5, 0, 0.75  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3(                              0, 0,         HexHelper.OUTER_RADIUS) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS *  0.5, 0, 0.75  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_INNER_GEOMETRY_RADIUS)
+	
+	#outer vertices
+	pts.append(Vector3(  HexHelper.INNER_RADIUS        , 0,  0.5   * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS        , 0,  0.25  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS        , 0,                               0) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS        , 0, -0.25  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS        , 0, -0.5   * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS *  0.75, 0, -0.625 * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS *  0.5 , 0, -0.75  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS *  0.25, 0, -0.875 * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(                               0, 0,         -HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS * -0.25, 0, -0.875 * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS * -0.5 , 0, -0.75  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS * -0.75, 0, -0.625 * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3( -HexHelper.INNER_RADIUS        , 0, -0.5   * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3( -HexHelper.INNER_RADIUS        , 0, -0.25  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3( -HexHelper.INNER_RADIUS        , 0,                               0) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3( -HexHelper.INNER_RADIUS        , 0,  0.25  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3( -HexHelper.INNER_RADIUS        , 0,  0.5   * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS * -0.75, 0,  0.625 * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS * -0.5 , 0,  0.75  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS * -0.25, 0,  0.875 * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(                               0, 0,          HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS *  0.25, 0,  0.875 * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS *  0.5 , 0,  0.75  * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	pts.append(Vector3(  HexHelper.INNER_RADIUS *  0.75, 0,  0.625 * HexHelper.OUTER_RADIUS) * HexHelper.SOLID_OUTER_GEOMETRY_RADIUS)
+	
+	
+	for i in range(len(pts)):
+		pts[i] += coord_offset + Vector3.UP * hex_position.pos.y
+		
+		var pt = Vector2(pts[i].x, pts[i].z)
+		var local_norm_uv = (pt + uv_offset) / uv_ratio
+		var new_uv = local_norm_uv
+		uvs.append(new_uv)
+		
+		water_data.append(0.0)
+		water_data.append(0.0)
 	
 	var idx : Array[int] = []
 	
-	for i in range(1, 7):
+	#generate indexing for inner hexagon geometry
+	for i in range(1, 13):
 		idx.append(idx_offset)
-		if i + 1 < 7:
+		if i + 1 < 13:
 			idx.append(idx_offset + (i + 1))
 		else:
 			idx.append(idx_offset + 1)
 		idx.append(idx_offset + i)
 	
-	var uvs : Array[Vector2] = []
 	
-	for point in pts:
-		var pt = Vector2(point.x, point.z)
-		var local_norm_uv = (pt + uv_offset) / uv_ratio
-		var new_uv = local_norm_uv + (uv_ratio/2)
+	#indexing of outer hexagon ring
+	var inner_offset = idx_offset + 1
+	var outer_offset = idx_offset + 13
+	for i in range(13, len(pts)):
+		outside_indices.append(idx_offset + i)
+	for i in range(6):
+		idx.append(outer_offset + i * 4)
+		idx.append(inner_offset + i * 2)
+		idx.append(outer_offset + i * 4 + 1)
 		
-		uvs.append(new_uv)
+		idx.append(outer_offset + i * 4 + 1)
+		idx.append(inner_offset + i * 2)
+		idx.append(inner_offset + i * 2 + 1)
 		
-	var normals : Array[Vector3] = []		
+		idx.append(outer_offset + i * 4 + 1)
+		idx.append(inner_offset + i * 2 + 1)
+		idx.append(outer_offset + i * 4 + 2)
 		
-	var water_data = []
-	for point in pts:
-		water_data.append(0.0)
-		water_data.append(0.0)
+		idx.append(outer_offset + i * 4 + 2)
+		idx.append(inner_offset + i * 2 + 1)
+		idx.append(outer_offset + i * 4 + 3)
+		
+		idx.append(outer_offset + i * 4 + 3)
+		idx.append(inner_offset + i * 2 + 1)
+		idx.append(inner_offset + ((i + 1) % 6) * 2)
+		
+		idx.append(outer_offset + i * 4 + 3)
+		idx.append(inner_offset + ((i + 1) % 6) * 2)
+		idx.append(outer_offset + ((i + 1) % 6) * 4)
 	
 	return [pts, idx, uvs, water_data]
+
+func update_tile_height():
+	pass
+func update_custom_props(arrays):
+	if water_node.content.water == 0:
+		return
+	var water_val = water_node.content.water / water_node.max_node_content
+	var pol_val = water_node.content.volume_of("POLLUTION") / water_node.max_node_content
+	if water_val == last_water and pol_val == last_pol:
+		return 
+	last_water = water_val
+	last_pol = pol_val
+	for i in range(index_offset, index_offset + vertex_count):
+		arrays[Mesh.ARRAY_CUSTOM0].set(i * 2, water_val)
+		arrays[Mesh.ARRAY_CUSTOM0].set(i * 2 + 1, pol_val)
+	pass
+func update_river_vertices():
+	pass

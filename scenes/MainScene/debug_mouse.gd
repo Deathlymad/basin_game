@@ -21,8 +21,8 @@ func _input(evt : InputEvent):
 			coord.round_coord()
 			last_hex_coord = coord.duplicate()
 			$CanvasLayer/PositionDisplay.text = coord.to_string()
-			var hex = $Basin.get_hexagon_from_hex_coord(coord)
-			if hex:
+			if coord.pos in Hexagon.HexagonLookup.keys():
+				var hex = Hexagon.HexagonLookup[coord.pos]
 				$CanvasLayer/WaterDisplay.text = str(hex.water_node.content.water)
 				$CanvasLayer/PollutionDisplay.text = str(hex.water_node.content.additions)
 			else:
@@ -30,14 +30,14 @@ func _input(evt : InputEvent):
 				$CanvasLayer/PollutionDisplay.text = "-"
 			$DebugDot.position = res["position"]
 	elif evt is InputEventKey:
+		var hex = null
+		if last_hex_coord.pos in Hexagon.HexagonLookup.keys():
+			hex = Hexagon.HexagonLookup[last_hex_coord.pos]
+		else:
+			return
 		if evt.is_action("debug_rain"):
-			
-			var hex = $Basin.get_hexagon_from_hex_coord(last_hex_coord)
-			if hex:
-				hex.water_node.add_water(5)
-				$CanvasLayer/WaterDisplay.text = str(hex.water_node.content.water)
+			hex.water_node.add_water(5)
+			$CanvasLayer/WaterDisplay.text = str(hex.water_node.content.water)
 		elif evt.is_action("debug_tick"):
-			var hex = $Basin.get_hexagon_from_hex_coord(last_hex_coord)
-			if hex:
-				hex.spawn_pump()
+			hex.spawn_pump()
 	

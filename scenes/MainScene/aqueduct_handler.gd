@@ -87,9 +87,9 @@ func place():
 		remove_child(t[0])
 		t[0].queue_free()
 		if len(t) > 2:
-			var tmp = $"../Basin".get_hexagon_from_hex_coord(t[1])
+			var tmp = Hexagon.HexagonLookup[t[1].pos]
 			if tmp != null:
-				tmp.add_aqueduct_in_for_height( ControlState.aqueduct_height, t[2], $"../Basin".get_hexagon_from_hex_coord(t[3]), t[4])
+				tmp.add_aqueduct_in_for_height( ControlState.aqueduct_height, t[2], Hexagon.HexagonLookup[t[3].pos], t[4])
 			else:
 				pass
 	temp_aqueducts.clear()

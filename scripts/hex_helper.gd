@@ -2,7 +2,8 @@ extends Node
 
 class_name HexHelper
 
-static var SOLID_RADIUS : float = 0.75
+static var SOLID_INNER_GEOMETRY_RADIUS : float = 0.1
+static var SOLID_OUTER_GEOMETRY_RADIUS : float = 0.75
 static var OUTER_RADIUS : float = 4;
 static var INNER_RADIUS : float = OUTER_RADIUS * 0.866025404;
 
@@ -50,7 +51,7 @@ class HexCoordinate:
 				return HexDirection.E
 			elif pos.x == 1 and pos.z == -1:
 				return HexDirection.SE
-			elif pos.z == -1 and pos.z == 0:
+			elif pos.z == -1 and pos.x == 0:
 				return HexDirection.SW
 			elif pos.x == -1 and pos.z == 0:
 				return HexDirection.W

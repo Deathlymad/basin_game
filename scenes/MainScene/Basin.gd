@@ -3,13 +3,35 @@ extends Node3D
 @export var hexgrid_radius : int
 var pathing : AStar2D
 
+var uv_ratio : Vector2
+var uv_offset : Vector2
+
+func _enter_tree() -> void:
+	_calculate_global_uv_ratio()
+
+func _calculate_global_uv_ratio():
+	
+	var extremes : Array[Vector3]
+	
+	extremes.append(HexHelper.HexCoordinate.new(0,0,hexgrid_radius).to_carthesian())
+	extremes.append(HexHelper.HexCoordinate.new(hexgrid_radius,0,0).to_carthesian())
+	extremes.append(HexHelper.HexCoordinate.new(0,0,-hexgrid_radius).to_carthesian())
+	extremes.append(HexHelper.HexCoordinate.new(-hexgrid_radius,0,0).to_carthesian())
+	print(extremes)
+	var mn = Vector2.ZERO
+	var mx = Vector2.ZERO
+	
+	for pt in extremes:
+		mn.x = min(pt.x, mn.x)
+		mn.y = min(pt.z, mn.y)
+		mx.x = max(pt.x, mx.x)
+		mx.y = max(pt.z, mx.y)
+	
+	uv_ratio = mx - mn
+	uv_offset = Vector2.ZERO - mn
+	
 var graph : WaterGraph = WaterGraph.new()
 
-func _enter_tree():
-	for c in get_children():
-		if c.is_in_group("chunk_group"):
-			c.size = hexgrid_radius
-			
 func _ready():
 	for c in get_children():
 		if c.is_in_group("chunk_group"):
@@ -19,18 +41,18 @@ func _ready():
 
 func update_graph():
 	var pos = [
-		HexHelper.HexCoordinate.new(1,0,0),
-		HexHelper.HexCoordinate.new(0,0,1),
-		HexHelper.HexCoordinate.new(-1,0,1),
-		HexHelper.HexCoordinate.new(1,0,-1),
-		HexHelper.HexCoordinate.new(-1,0,0),
-		HexHelper.HexCoordinate.new(0,0,-1),
+		Vector3(1,0,0),
+		Vector3(0,0,1),
+		Vector3(-1,0,1),
+		Vector3(1,0,-1),
+		Vector3(-1,0,0),
+		Vector3(0,0,-1),
 	]
 	for h in pos:
-		get_hexagon_from_hex_coord(h).water_node.content.water = 5
+		Hexagon.HexagonLookup[h].water_node.content.water = 5
 	graph.update()
 	for h in pos:
-		get_hexagon_from_hex_coord(h).water_node.content.water = 5
+		Hexagon.HexagonLookup[h].water_node.content.water = 5
 	for c in get_children():
 		if c.is_in_group("chunk_group"):
 			c.update_mesh_water_data()
@@ -38,27 +60,19 @@ func update_graph():
 func get_id_from_hex_coord(coord):
 	return  coord.pos.x * 1024 + 128 * 1024 + coord.pos.z + 128
 
-
 func build_pathing():
 	pathing = AStar2D.new()
-	var m = null
-	for c in get_children():
-		if c is MeshInstance3D:
-			m = c
-			break
-	
-	var lines = []
 	
 	for c in get_children():
 		if c.is_in_group("chunk_group"):
 			for h in c.hexagons:
 				for n in h.neighbors:
-					var id = get_id_from_hex_coord(h.get_hex_position())
+					var id = get_id_from_hex_coord(h.hex_position)
 					if not pathing.has_point(id):
-						pathing.add_point(id, HexHelper.to_xz(h.get_hex_position().to_carthesian()))
-					var id1 = get_id_from_hex_coord(n.get_hex_position())
+						pathing.add_point(id, HexHelper.to_xz(h.hex_position.to_carthesian()))
+					var id1 = get_id_from_hex_coord(n.hex_position)
 					if not pathing.has_point(id1):
-						pathing.add_point(id1, HexHelper.to_xz(n.get_hex_position().to_carthesian()))
+						pathing.add_point(id1, HexHelper.to_xz(n.hex_position.to_carthesian()))
 					if not pathing.are_points_connected(id, id1):
 						pathing.connect_points(id, id1)
 
@@ -72,8 +86,6 @@ func compute_path(start, end):
 		res.append(HexHelper.HexCoordinate.new(p / 1024 - 128, 0, p % 1024 - 128))
 	return res
 	
-
-
 func generate_neighborhood_graph():
 	var m = null
 	for c in get_children():
@@ -89,12 +101,12 @@ func generate_neighborhood_graph():
 		if c.is_in_group("chunk_group"):
 			for h in c.hexagons:
 				for n in h.neighbors:
-					if n.get_hex_position() in hs:
+					if n.hex_position.pos in hs:
 						continue
 					else:
-						hs.append(h.get_hex_position())
-					lines.append(h.get_hex_position().to_carthesian())
-					lines.append(n.get_hex_position().to_carthesian())
+						hs.append(h.hex_position.pos)
+					lines.append(h.hex_position.to_carthesian())
+					lines.append(n.hex_position.to_carthesian())
 					colors.append(Color(0,0,0))
 					colors.append(Color(0,0,0))
 	lines.clear()
@@ -127,12 +139,3 @@ func get_chunk_by_direction(dir : HexHelper.HexDirection):
 		if c.is_in_group("chunk_group"):
 			if c.direction == dir:
 				return c
-
-
-func get_hexagon_from_hex_coord(coord : HexHelper.HexCoordinate):
-	for c in get_children():
-		if c.is_in_group("chunk_group"):
-			var tmp = c.contains(coord)
-			if tmp:
-				return c.get_hexagon(coord)
-	return null

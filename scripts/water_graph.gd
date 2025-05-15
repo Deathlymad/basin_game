@@ -23,8 +23,8 @@ class FluidMix:
 				s += v
 			return s
 	
-	func _init(water : float = 0.0, adds : Dictionary[String, float] = {}):
-		self.water = water
+	func _init(_water : float = 0.0, adds : Dictionary[String, float] = {}):
+		water = _water
 		additions = adds
 	
 	func volume_of(a:String):
